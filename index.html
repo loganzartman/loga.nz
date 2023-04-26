@@ -2,6 +2,9 @@
   <head>
     <title>loganz</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@150&display=swap" rel="stylesheet">
     <style>
       html, body {
         margin: 0;
@@ -9,6 +12,7 @@
         background: rgb(31, 27, 32);
       }
       .banner-container {
+        margin-top: calc(max(0, -50vw - 100%));
         width: 100%;
         position: relative;
         display: flex;
@@ -20,7 +24,7 @@
         user-select: none;
         width: 100%;
         max-width: 1200px;
-        min-width: 700px;
+        min-width: 800px;
         object-fit: contain;
       }
       .cat {
@@ -29,19 +33,45 @@
         bottom: 0;
         left: 10%;
         width: calc(min(80px, max(40px, 8vmin)));
+        transition: all 0.2s ease;
+      }
+      .cat:hover {
+        transform: translateY(100%);
+        padding-top: 100%;
       }
       .links {
         margin-top: 2em;
         display: flex;
         flex-direction: row;
         justify-content: center;
+        align-items: center;
         gap: 1.2em;
         font-size: 2em;
-        font-family: monospace;
+        font-family: 'Inter', sans-serif;
+        font-weight: 150;
         color: #fff2dc;
+      }
+      @media (max-width: 600px) {
+        .links {
+          flex-direction: column;
+        }
+      }
+      .links>* {
+        opacity: 0.8;
       }
       .links a {
         color: inherit;
+        text-decoration-thickness: from-font;
+        transition: all 0.2s ease-out;
+        text-underline-offset: 0.1em;
+        text-decoration-style: dotted;
+      }
+      .links a:hover {
+        opacity: 1.0;
+        transition: all 0.1s ease-out;
+        text-underline-offset: 0.2em;
+        color: #8080FF;
+        text-decoration-style: solid;
       }
     </style>
   </head>
@@ -51,7 +81,7 @@
     </div>
     <img class="cat" src="cat.svg"/>
     <div class="links">
-      <div>loganz:</div>
+      <div>loganz</div>
       <a href="https://github.com/loganzartman">github</a>
       <a href="https://linkedin.com/in/logan-zartman">linkedin</a>
     </div>

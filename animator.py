@@ -1,14 +1,13 @@
 import sys
 import random
-import math
 from copy import deepcopy
 from lxml import etree as ET
 
-def animate_sparkles(root):
+def animate_sparkles(root: ET.ElementBase):
   sparkles = root.findall('.//{http://www.w3.org/2000/svg}g[@id="sparkles"]/{http://www.w3.org/2000/svg}path')
 
   for sparkle in sparkles:
-    sparkle.attrib['style'] += '; transform-origin: center; transform-box: fill-box;'
+    sparkle.attrib['style'] = str(sparkle.attrib['style']) + '; transform-origin: center; transform-box: fill-box;'
     ET.SubElement(sparkle, 'animateTransform', {
       'attributeName': 'transform',
       'attributeType': 'XML',
@@ -23,52 +22,30 @@ def animate_sparkles(root):
       'calcMode': 'spline',
       'repeatCount': 'indefinite',
     })
-    
 
-def animate_outline(root, copies=3, keyframes=10, maxdist=5):
+def animate_outline(root: ET.ElementBase, copies: int=3, r: int=5):
   outlines = root.findall('.//{http://www.w3.org/2000/svg}g[@id="outlines"]/{http://www.w3.org/2000/svg}path')
 
   colors = ['#FF7070', '#70FF70', '#7070FF']
-  def rand_offset():
-    direction = random.uniform(0, math.pi * 2)
-    length = maxdist
-    return f'{math.cos(direction)*length} {math.sin(direction)*length}'
 
   for outline in outlines:
     parent = outline.getparent()
+    if parent is None:
+      raise Exception('outline should have a parent')
+
     parent.remove(outline)
     for i in range(copies):
       clone = deepcopy(outline)
-      clone.attrib['style'] += f'; stroke: {colors[i%len(colors)]}; mix-blend-mode: screen; opacity: 1.0; transform-origin: center; transform-box: fill-box;'
-
-      key_times = [str(i / (keyframes)) for i in range(keyframes + 1)]
-      values = [rand_offset() for _ in range(keyframes)]
-      values.append(values[0])
+      clone.attrib['style'] = f'{str(clone.attrib["style"])}; stroke: {colors[i%len(colors)]}; mix-blend-mode: screen; opacity: 1.0; transform-origin: center; transform-box: fill-box;'
 
       dur = 10
-      r = maxdist
       ET.SubElement(clone, 'animateMotion', {
         'path': f'M 0 0 a {r} {r} 0 1 0 {2 * r} 0 a {r} {r} 0 1 0 {-2 * r} 0',
         'dur': '10s',
         'begin': f'{-dur/copies*i}s',
-        'keyTimes': ';'.join(key_times),
-        'values': ';'.join(values),
         'calcMode': 'linear',
         'repeatCount': 'indefinite',
       })
-
-      # ET.SubElement(clone, 'animateTransform', {
-      #   'attributeName': 'transform',
-      #   'attributeType': 'XML',
-      #   'type': 'translate',
-      #   'additive': 'sum',
-      #   'fill': 'freeze',
-      #   'dur': f'{random.uniform(10, 12)}s',
-      #   'keyTimes': ';'.join(key_times),
-      #   'values': ';'.join(values),
-      #   'calcMode': 'linear',
-      #   'repeatCount': 'indefinite',
-      # })
       parent.append(clone)
 
 def animate(inpath: str, outpath: str):

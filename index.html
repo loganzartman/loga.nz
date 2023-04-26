@@ -1,0 +1,58 @@
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      html, body {
+        margin: 0;
+        width: 100%;
+        background: rgb(31, 27, 32);
+      }
+      .banner-container {
+        width: 100%;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+      }
+      .banner {
+        user-select: none;
+        width: 100%;
+        max-width: 1200px;
+        min-width: 700px;
+        object-fit: contain;
+      }
+      .cat {
+        user-select: none;
+        position: fixed;
+        bottom: 0;
+        left: 10%;
+        width: calc(min(80px, max(40px, 8vmin)));
+      }
+      .links {
+        margin-top: 2em;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        gap: 1.2em;
+        font-size: 2em;
+        font-family: monospace;
+        color: #fff2dc;
+      }
+      .links a {
+        color: inherit;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="banner-container">
+      <img class="banner" src="v5.svg.animated.svg"/>
+    </div>
+    <img class="cat" src="cat.svg"/>
+    <div class="links">
+      <div>loganz:</div>
+      <a href="https://github.com/loganzartman">github</a>
+      <a href="https://linkedin.com/in/logan-zartman">linkedin</a>
+    </div>
+  </body>
+</html>

@@ -29,17 +29,19 @@
         min-width: 800px;
         object-fit: contain;
       }
-      .cat {
-        user-select: none;
+      .cat-box {
         position: fixed;
         bottom: 0;
         left: 10%;
-        width: calc(min(80px, max(40px, 8vmin)));
-        transition: all 0.2s ease;
       }
-      .cat:hover {
+      .cat-box .cat {
+        user-select: none;
+        width: calc(min(90px, max(50px, 10vmax)));
+        transition: transform 4s cubic-bezier(.85,.59,.6,-0.26) 1s;
+      }
+      .cat-box:hover .cat {
         transform: translateY(100%);
-        padding-top: 100%;
+        transition: transform 0.2s ease;
       }
       .links {
         margin-top: 2em;
@@ -81,7 +83,9 @@
     <div class="banner-container">
       <img class="banner" src="banner.svg" alt="The outlines of a geometric L and Z on a backdrop of twinkling stars"/>
     </div>
-    <img class="cat" src="cat.svg" alt="A sitting cat rendered in a minimal line-drawing style"/>
+    <div class="cat-box">
+      <img class="cat" src="cat.svg" alt="A sitting cat rendered in a minimal line-drawing style"/>
+    </div>
     <div class="links">
       <div>loganz</div>
       <a href="https://github.com/loganzartman">github</a>

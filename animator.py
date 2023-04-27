@@ -38,8 +38,8 @@ def hslerp(a: Tuple[float, float, float], b: Tuple[float, float, float], f: floa
 def animate_outline(root: ET.ElementBase, copies: int=5, r: int=14, dur: int=12):
   outlines = root.findall('.//{http://www.w3.org/2000/svg}g[@id="outlines"]/{http://www.w3.org/2000/svg}path')
 
-  color_to = (251.5, 73.3, 69.2)
-  color_from = (51.4, 73.3, 69.2)
+  color_to = (51.4, 73.3, 69.2)
+  color_from = (251.5, 73.3, 69.2)
   colors = [hsluv_to_hex(hslerp(color_from, color_to, i / (copies - 1))) for i in range(copies)]
 
   for outline in outlines:

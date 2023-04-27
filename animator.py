@@ -1,7 +1,10 @@
 import sys
 import random
+import math
 from copy import deepcopy
+from typing import Tuple
 from lxml import etree as ET
+from hsluv import hsluv_to_hex
 
 def animate_sparkles(root: ET.ElementBase):
   sparkles = root.findall('.//{http://www.w3.org/2000/svg}g[@id="sparkles"]/{http://www.w3.org/2000/svg}path')
@@ -23,10 +26,21 @@ def animate_sparkles(root: ET.ElementBase):
       'repeatCount': 'indefinite',
     })
 
-def animate_outline(root: ET.ElementBase, copies: int=3, r: int=5):
+def hslerp(a: Tuple[float, float, float], b: Tuple[float, float, float], f: float) -> Tuple[float, float, float]:
+  f = max(0, min(1, f))
+  ha, sa, la = a
+  hb, sb, lb = b
+  dh = (hb - ha + 180) % 360 - 180
+  ds = sb - sa
+  dl = lb - la
+  return ((ha + dh * f) % 360, sa + ds * f, la + dl * f)
+
+def animate_outline(root: ET.ElementBase, copies: int=5, r: int=14, dur: int=12):
   outlines = root.findall('.//{http://www.w3.org/2000/svg}g[@id="outlines"]/{http://www.w3.org/2000/svg}path')
 
-  colors = ['#FF7070', '#70FF70', '#7070FF']
+  color_to = (251.5, 73.3, 69.2)
+  color_from = (51.4, 73.3, 69.2)
+  colors = [hsluv_to_hex(hslerp(color_from, color_to, i / (copies - 1))) for i in range(copies)]
 
   for outline in outlines:
     parent = outline.getparent()
@@ -38,11 +52,11 @@ def animate_outline(root: ET.ElementBase, copies: int=3, r: int=5):
       clone = deepcopy(outline)
       clone.attrib['style'] = f'{str(clone.attrib["style"])}; stroke: {colors[i%len(colors)]}; mix-blend-mode: screen; opacity: 1.0; transform-origin: center; transform-box: fill-box;'
 
-      dur = 10
+      h = math.sqrt(3) * r / 2
       ET.SubElement(clone, 'animateMotion', {
-        'path': f'M 0 0 a {r} {r} 0 1 0 {2 * r} 0 a {r} {r} 0 1 0 {-2 * r} 0',
-        'dur': '10s',
-        'begin': f'{-dur/copies*i}s',
+        'path': f'M {0} {-h/2}, {-r/2} {h/2}, {r/2} {h/2} z',
+        'dur': f'{dur}s',
+        'begin': f'{-dur/2/copies*i}s',
         'calcMode': 'linear',
         'repeatCount': 'indefinite',
       })

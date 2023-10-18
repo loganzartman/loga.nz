@@ -1,12 +1,9 @@
-import {DM_Serif_Display} from 'next/font/google';
 import Image from 'next/image';
 import Link from 'next/link';
 
 import imgBannerAnimated from '@/app/home/banner-animated.svg';
 import imgCat from '@/app/home/cat.svg';
 import Arrow from '@/lib/components/Arrow';
-
-const dmSerif = DM_Serif_Display({weight: '400', subsets: ['latin']});
 
 export default function Home() {
   return (
@@ -27,9 +24,7 @@ export default function Home() {
       </div>
       <main className="-mt-16 flex flex-col justify-center items-center text-3xl">
         <div className="flex flex-col items-center">
-          <div className={`${dmSerif.className} text-7xl`}>
-            hey, i&apos;m Logan
-          </div>
+          <div className="font-serif text-7xl">hey, i&apos;m Logan</div>
           <div className="flex flex-row gap-4 mt-2">
             <div>i&apos;m on:</div>
             <a
@@ -49,7 +44,7 @@ export default function Home() {
         <div className="group transition-all mt-10 hover:text-highlight hover:stroke-highlight">
           <Link href="/blog">
             <div className="flex flex-row items-center">
-              <div className={`${dmSerif.className}`}>read my blog?</div>
+              <div className="font-serif">read my blog?</div>
               <Arrow className="transition-transform h-[1.5em] group-hover:translate-x-3" />
             </div>
             <div className="text-sm -mt-2">it&apos;s about computers.</div>

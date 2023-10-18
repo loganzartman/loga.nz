@@ -1,4 +1,3 @@
-import {DM_Serif_Display} from 'next/font/google';
 import Link from 'next/link';
 import Markdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
@@ -6,8 +5,6 @@ import remarkGfm from 'remark-gfm';
 
 import {getAllPosts, getPostBySlug} from '@/app/blog/lib/posts';
 import Arrow from '@/lib/components/Arrow';
-
-const dmSerif = DM_Serif_Display({weight: '400', subsets: ['latin']});
 
 export async function generateStaticParams() {
   return getAllPosts().map(({data: {slug}}) => ({slug}));
@@ -23,7 +20,7 @@ export default async function Post({params}: {params: {slug: string}}) {
           <Link href="/blog">
             <div className="flex flex-row items-center">
               <Arrow className="transition-transform h-[1.5em] group-hover:-translate-x-3 -scale-x-100" />
-              <div className={`${dmSerif.className}`}>back to posts</div>
+              <div className="font-serif">back to posts</div>
             </div>
           </Link>
         </div>

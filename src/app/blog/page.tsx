@@ -1,8 +1,4 @@
-import {DM_Serif_Display} from 'next/font/google';
-
 import {getAllPosts, Post} from '@/app/blog/lib/posts';
-
-const dmSerif = DM_Serif_Display({weight: '400', subsets: ['latin']});
 
 function PostListing({post}: {post: Post}) {
   return (
@@ -26,9 +22,7 @@ export default async function Blog() {
   return (
     <div className="w-full flex justify-center mt-12">
       <div className="max-w-[60ch] flex flex-col gap-4">
-        <div className={`${dmSerif.className} text-5xl mb-4`}>
-          posts on my blog:
-        </div>
+        <div className="font-serif text-5xl mb-4">posts on my blog:</div>
         {postListings}
       </div>
     </div>

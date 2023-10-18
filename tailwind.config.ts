@@ -12,6 +12,11 @@ const config: Config = {
       colors: {
         highlight: '#cb93e9',
       },
+      fontFamily: {
+        sans: ['var(--font-sans)', 'ui-sans-serif'],
+        serif: ['var(--font-serif)', 'ui-serif'],
+        mono: ['var(--font-mono)', 'ui-monospace'],
+      },
     },
   },
   plugins: [typography],

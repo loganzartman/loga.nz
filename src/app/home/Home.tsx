@@ -1,7 +1,10 @@
+import {DM_Serif_Display} from 'next/font/google';
 import Image from 'next/image';
 
 import imgBannerAnimated from '@/app/home/banner-animated.svg';
 import imgCat from '@/app/home/cat.svg';
+
+const dmSerif = DM_Serif_Display({weight: '400', subsets: ['latin']});
 
 export default function Home() {
   return (
@@ -20,20 +23,25 @@ export default function Home() {
           className="select-none w-[calc(min(90px,max(50px,10vmax)))] transition-transform ease-[cubic-bezier(.85,.59,.6,-0.26)] duration-[4s] delay-[1s] hover:translate-y-full hover:duration-[0.2s] hover:ease-in-out hover:delay-0"
         />
       </div>
-      <main className="mt-8 flex flex-row justify-center items-center gap-5 text-3xl">
-        <div>loganz</div>
-        <a
-          href="https://github.com/loganzartman"
-          className="transition-all duration-200 underline decoration-from-font decoration-dotted underline-offset-2 hover:underline-offset-8 hover:text-[#8080FF] hover:decoration-solid"
-        >
-          github
-        </a>
-        <a
-          href="https://linkedin.com/in/logan-zartman"
-          className="transition-all duration-200 underline decoration-from-font decoration-dotted underline-offset-2 hover:underline-offset-8 hover:text-[#8080FF] hover:decoration-solid"
-        >
-          linkedin
-        </a>
+      <main className="-mt-16 flex flex-col justify-center items-center gap-5 text-3xl">
+        <div className={`${dmSerif.className} text-7xl`}>
+          hey, i&apos;m Logan
+        </div>
+        <div className="flex flex-row gap-4">
+          <div>i&apos;m on:</div>
+          <a
+            href="https://github.com/loganzartman"
+            className="transition-all duration-200 underline decoration-from-font decoration-dotted underline-offset-2 hover:underline-offset-8 hover:text-[#8080FF] hover:decoration-solid"
+          >
+            github
+          </a>
+          <a
+            href="https://linkedin.com/in/logan-zartman"
+            className="transition-all duration-200 underline decoration-from-font decoration-dotted underline-offset-2 hover:underline-offset-8 hover:text-[#8080FF] hover:decoration-solid"
+          >
+            linkedin
+          </a>
+        </div>
       </main>
     </div>
   );

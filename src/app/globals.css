@@ -9,3 +9,7 @@ body {
   background: rgb(31, 27, 32);
   color: #fff2dc;
 }
+
+.hljs {
+  background: none;
+}

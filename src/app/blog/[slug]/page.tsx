@@ -15,7 +15,7 @@ export default async function Post({params}: {params: {slug: string}}) {
   const post = getPostBySlug(slug);
   return (
     <div className="flex flex-col items-center mt-8">
-      <div className="prose prose-invert">
+      <div className="prose prose-invert prose-headings:font-serif">
         <div className="not-prose group transition-all -ml-4 mb-2 hover:text-highlight hover:stroke-highlight">
           <Link href="/blog">
             <div className="flex flex-row items-center">

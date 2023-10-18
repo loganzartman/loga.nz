@@ -13,6 +13,7 @@ const config: Config = {
         highlight: '#cb93e9',
       },
       fontFamily: {
+        display: ['var(--font-display)', 'ui-serif'],
         sans: ['var(--font-sans)', 'ui-sans-serif'],
         serif: ['var(--font-serif)', 'ui-serif'],
         mono: ['var(--font-mono)', 'ui-monospace'],

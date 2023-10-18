@@ -24,7 +24,7 @@ export default function Home() {
       </div>
       <main className="-mt-16 flex flex-col justify-center items-center text-3xl">
         <div className="flex flex-col items-center">
-          <div className="font-serif text-7xl">hey, i&apos;m Logan</div>
+          <div className="font-display text-7xl">hey, i&apos;m Logan</div>
           <div className="flex flex-row gap-4 mt-2">
             <div>i&apos;m on:</div>
             <a

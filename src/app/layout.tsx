@@ -1,4 +1,5 @@
 import '@/app/globals.css';
+import 'highlight.js/styles/base16/material-palenight.css';
 
 import type {Metadata} from 'next';
 import {Sora} from 'next/font/google';

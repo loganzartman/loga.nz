@@ -1,8 +1,10 @@
 import {DM_Serif_Display} from 'next/font/google';
 import Image from 'next/image';
+import Link from 'next/link';
 
 import imgBannerAnimated from '@/app/home/banner-animated.svg';
 import imgCat from '@/app/home/cat.svg';
+import Arrow from '@/lib/components/Arrow';
 
 const dmSerif = DM_Serif_Display({weight: '400', subsets: ['latin']});
 
@@ -23,24 +25,35 @@ export default function Home() {
           className="select-none w-[calc(min(90px,max(50px,10vmax)))] transition-transform ease-[cubic-bezier(.85,.59,.6,-0.26)] duration-[4s] delay-[1s] hover:translate-y-full hover:duration-[0.2s] hover:ease-in-out hover:delay-0"
         />
       </div>
-      <main className="-mt-16 flex flex-col justify-center items-center gap-5 text-3xl">
-        <div className={`${dmSerif.className} text-7xl`}>
-          hey, i&apos;m Logan
+      <main className="-mt-16 flex flex-col justify-center items-center text-3xl">
+        <div className="flex flex-col items-center">
+          <div className={`${dmSerif.className} text-7xl`}>
+            hey, i&apos;m Logan
+          </div>
+          <div className="flex flex-row gap-4 mt-2">
+            <div>i&apos;m on:</div>
+            <a
+              href="https://github.com/loganzartman"
+              className="transition-all duration-200 underline decoration-from-font decoration-dotted p-2 -m-2 underline-offset-2 hover:underline-offset-8 hover:text-highlight hover:decoration-solid"
+            >
+              github
+            </a>
+            <a
+              href="https://linkedin.com/in/logan-zartman"
+              className="transition-all duration-200 underline decoration-from-font decoration-dotted p-2 -m-2 underline-offset-2 hover:underline-offset-8 hover:text-highlight hover:decoration-solid"
+            >
+              linkedin
+            </a>
+          </div>
         </div>
-        <div className="flex flex-row gap-4">
-          <div>i&apos;m on:</div>
-          <a
-            href="https://github.com/loganzartman"
-            className="transition-all duration-200 underline decoration-from-font decoration-dotted underline-offset-2 hover:underline-offset-8 hover:text-[#8080FF] hover:decoration-solid"
-          >
-            github
-          </a>
-          <a
-            href="https://linkedin.com/in/logan-zartman"
-            className="transition-all duration-200 underline decoration-from-font decoration-dotted underline-offset-2 hover:underline-offset-8 hover:text-[#8080FF] hover:decoration-solid"
-          >
-            linkedin
-          </a>
+        <div className="group transition-all mt-10 hover:text-highlight hover:stroke-highlight">
+          <Link href="/blog">
+            <div className="flex flex-row items-center">
+              <div className={`${dmSerif.className}`}>read my blog?</div>
+              <Arrow className="transition-transform h-[1.5em] group-hover:translate-x-3" />
+            </div>
+            <div className="text-sm -mt-2">it&apos;s about computers.</div>
+          </Link>
         </div>
       </main>
     </div>

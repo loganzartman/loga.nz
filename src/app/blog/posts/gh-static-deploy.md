@@ -6,7 +6,7 @@ draft: false
 toc: true
 ---
 
-# Overview
+# Deploy a static site with GitHub Actions
 
 In this post, I'll show you how I automatically build and deploy this blog using [GitHub Actions][gh actions], GitHub's free continuous integration platform. I use [Hugo][hugo] to generate a static site and copy it to my web server [using rsync][hugo rsync] over SSH. I run [nginx][nginx] on my server. There are already great tutorials on [how to set up Hugo][hugo setup] and [how to set up nginx][nginx setup]. Really, this process applies to any static site deployment to any web server that you have SSH access to.
 
@@ -14,7 +14,7 @@ I think that this process is simple enough that it is worth setting up yourself.
 
 You will need SSH access to the machine you deploy to so that you can configure it and to use rsync over SSH. The website source is kept in a repository on GitHub. The GitHub Action automatically builds it and syncs the files to a web server when new commits are pushed to the master branch.
 
-# Creating a workflow
+## Creating a workflow
 
 Set up a GitHub Actions workflow by creating the file `.github/workflows/my_workflow.yml` within your repository. Start by defining the event that launches the workflow:
 
@@ -58,7 +58,7 @@ steps:
 
 Now, your GitHub Actions job will automatically [build the Hugo site][hugo build]. Next, you will need to upload the built website to your web server.
 
-# Configuring the server
+## Configuring the server
 
 This step entails configuring users and file permissions for your web data. If you already have this set up, you can skip this step. However, you may not if you have only done a basic nginx install.
 
@@ -68,7 +68,7 @@ If you host multiple websites within your web root, you may optionally create on
 
 First, you should be familiar with Unix [file modes][file modes]. See also the "Permissions" section in [`man 7 path_resolution`][man 7 path_resolution].
 
-## The strategy
+### The strategy
 
 The goal is to allow write access to some user account that will be used to edit the web files, and to allow only read access to nginx. Let a particular user (e.g. `www-data` or `my-rsync-user`) own the web root. Set the group of the web root to `nginx` (or some other group that your web server user is a part of.) Set the file mode of the web root to `750`. Log in as the owner of the web root to edit it.
 
@@ -78,7 +78,7 @@ The detailed steps are as follows. Run them as root.
 2. Set the owner and group of your web root with `chown ${NEW_USER}:nginx /var/www`. If you are using some other group, substitute it for "nginx".
 3. Set file permissions on the web root with `chmod 750 /var/www`
 
-## Creating `authorized_keys`
+### Creating `authorized_keys`
 
 To make future steps easier, you should create an `authorized_keys` file for whatever user you will use for rsync. Do the following:
 
@@ -90,13 +90,13 @@ sudo chown -R ${RSYNC_USER} /home/${RSYNC_USER}/.ssh
 sudo chmod 600 /home/${RSYNC_USER}/.ssh/authorized_keys
 ```
 
-# SSH Access
+## SSH Access
 
 In the previous step, you configured your server to allow some user to write to your web root. In this step, you will enable your GitHub Actions worker to upload files as this user via SSH.
 
 I chose to upload my Hugo site using `rsync`, [as the Hugo website recommends][hugo rsync]. I will describe how to set up SSH access for the GitHub Actions worker so that you can `rsync` securely over SSH. You will generate a new [SSH key pair][ssh key pair], providing the private key to your Actions workflow and providing the public key to your web server to authorize the holder of the private key to connect via SSH.
 
-## Generating an SSH key pair
+### Generating an SSH key pair
 
 Generate a new key pair on your personal machine.
 
@@ -106,7 +106,7 @@ ssh-keygen
 
 You could do some Googling to decide what cipher settings to use for this. You could also check [this answer][keygen cipher] on StackExchange. Running `ssh-keygen` will generate a private key and a public key (ending in `.pub`) in whatever location you specified.
 
-## Authorizing the key
+### Authorizing the key
 
 You need to tell the SSH daemon that machines are authorized to log in to your rsync user using the key pair you just generated. You will do this by adding the public key to the `authorized_keys` file. By default, this is located at `~/.ssh/authorized_keys`. If, for some reason, you need to relocate this file, you can change the [`AuthorizedKeysFile` option][ssh authorized keys file] in your sshd configuration.
 
@@ -120,15 +120,15 @@ Replace the path to your public key, your admin username, your hostname, and you
 
 Finally, you need to securely provide the secret key to the GitHub Actions worker.
 
-# GitHub repository secrets
+## GitHub repository secrets
 
 There are two secrets involved which must be managed securely. The first the is private half of your recently-generated key pair. It is the file that does not end with `.pub`. The second is the [SSH fingerprint][ssh fingerprint] of your web server. You should store both as [secrets in your GitHub repository][gh secrets]. In reality, the fingerprint is just another form of the public key of your server. However, storing it as a secret ensures that you can't be tricked into changing it with a commit.
 
-## Secret key
+### Secret key
 
 First, let's upload the secret key. Navigate to the Secrets page for your repository and create a new secret called, for example, `deploy_key`. Unfortunately, the interface (at the time of writing) is simply a text box. So, `cat` your `~/.ssh/my_rsync_key` and copy it into the secret value (or something to this effect.) Since we have authorized this key by appending the public half to `authorized_keys`, it will allow the Actions worker to SSH into your web server using your rsync account.
 
-## known_hosts
+### known_hosts
 
 When the Actions worker tries to connect to your web server via SSH, `ssh` will verify the fingerprint of the server against its `~/.ssh/known_hosts` file to help mitigate man-in-the-middle attacks. Normally, when you SSH to a host for the first time, you are interactively prompted to add it to your `known_hosts` file. However, your Actions worker always runs on a new virtual machine instance. You could have it generate a `known_hosts` file each run, but that would be equivalent to bypassing the check entirely. If you don't care, go for it. Instead, you can save the fingerprints for your web server and store them as another secret. It will later be used to create the worker's `known_hosts` file. To generate fingerprints you can use `ssh-keyscan`:
 
@@ -138,11 +138,11 @@ ssh-keyscan ${HOST}
 
 Create a new GitHub secret called `known_hosts` and paste in the output of `ssh-keyscan`.
 
-# Rsync deployment
+## Rsync deployment
 
 Everything is in place to perform the deployment with `rsync`. You can access your newly-created secrets in your GitHub action to set up SSH Access to your web server.
 
-## Set up SSH access
+### Set up SSH access
 
 First, the two secrets are exposed as environment variables. Then, you can use the secrets to create the `known_hosts` file and add the private key:
 
@@ -165,7 +165,7 @@ steps:
       chmod -R 700 ~/.ssh
 ```
 
-## Set up rsync deployment
+### Set up rsync deployment
 
 The final step is to [use rsync to upload the files][hugo rsync] to the web server. Add a new step like this:
 
@@ -177,7 +177,7 @@ The final step is to [use rsync to upload the files][hugo rsync] to the web serv
 
 This step runs `rsync` using `ssh`, uploading the contents of your local `public` directory (containing your website files) to the web root of your web server.
 
-# Completed workflow definition
+## Completed workflow definition
 
 That's it! Below is the entire Actions workflow file. Make sure to replace your rsync username and the web server's hostname.
 

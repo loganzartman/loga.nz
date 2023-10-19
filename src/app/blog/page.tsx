@@ -1,3 +1,6 @@
+import Image from 'next/image';
+
+import imgCatLeft from '@/app/blog/cat-left.svg';
 import {getAllPosts, Post} from '@/app/blog/lib/posts';
 
 function PostListing({post}: {post: Post}) {
@@ -21,9 +24,21 @@ export default async function Blog() {
 
   return (
     <div className="w-full flex justify-center mt-12">
-      <div className="max-w-[60ch] flex flex-col gap-4">
-        <div className="font-display text-5xl mb-4">posts on my blog:</div>
+      <div className="w-[60ch] max-w-full flex flex-col gap-4">
+        <div className="mb-4">
+          <h1 className="font-serif text-5xl">posts on my blog:</h1>
+          <aside className="mt-2 font-sans text-sm">
+            &ldquo;blog&rdquo; is short for &ldquo;i neglect this web-log&rdquo;
+          </aside>
+        </div>
         {postListings}
+      </div>
+      <div className="fixed bottom-2 right-[15%]">
+        <Image
+          src={imgCatLeft}
+          alt="A laying cat looking upwards toward the text, rendered in a minimal line-drawing style"
+          className="select-none w-[calc(min(180px,max(100px,10vmax)))]"
+        />
       </div>
     </div>
   );

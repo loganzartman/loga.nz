@@ -5,6 +5,7 @@ import rehypeHighlight from 'rehype-highlight';
 import rehypeSlug from 'rehype-slug';
 import remarkGfm from 'remark-gfm';
 
+import {mdComponents} from '@/app/blog/components/mdComponents';
 import {getAllPosts, getPostBySlug} from '@/app/blog/lib/posts';
 import Arrow from '@/lib/components/Arrow';
 
@@ -28,6 +29,7 @@ export default async function Post({params}: {params: {slug: string}}) {
         </div>
         <article>
           <Markdown
+            components={mdComponents}
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[
               rehypeHighlight,

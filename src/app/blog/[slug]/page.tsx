@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import Markdown from 'react-markdown';
+import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypeHighlight from 'rehype-highlight';
+import rehypeSlug from 'rehype-slug';
 import remarkGfm from 'remark-gfm';
 
 import {getAllPosts, getPostBySlug} from '@/app/blog/lib/posts';
@@ -15,7 +17,7 @@ export default async function Post({params}: {params: {slug: string}}) {
   const post = getPostBySlug(slug);
   return (
     <div className="flex flex-col items-center mt-8">
-      <div className="prose prose-invert prose-headings:font-serif">
+      <div className="prose prose-invert prose-headings:font-serif prose-a:no-underline">
         <div className="not-prose group transition-all -ml-4 mb-2 hover:text-highlight hover:stroke-highlight">
           <Link href="/blog">
             <div className="flex flex-row items-center">
@@ -27,7 +29,11 @@ export default async function Post({params}: {params: {slug: string}}) {
         <article>
           <Markdown
             remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeHighlight]}
+            rehypePlugins={[
+              rehypeHighlight,
+              rehypeSlug,
+              [rehypeAutolinkHeadings, {behavior: 'wrap'}],
+            ]}
           >
             {post.content}
           </Markdown>

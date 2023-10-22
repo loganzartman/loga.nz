@@ -1,17 +1,22 @@
 ---
 title: DIY Suspense in React
+description: writing code that suspends to make your components feel synchronous
+tags:
+  - React
+  - Suspense
+  - hooks
 date: 2023-10-16
 ---
 
 # DIY Suspense in React
 
-When I started learning the new features in [React 18][react 18], I was pretty interested in Suspense. Suspense lets authors build libraries that do asynchronous tasks, like fetching data, in a way that's easier for developers to use. Instead of having to check whether the data is loading, developers can write components as if data is available immediately. It can serve a similar role to `async/await` in that it makes a Promise look synchronous.
+When I started learning the new features in [React 18][react 18], I was pretty interested in Suspense. Suspense lets authors build libraries that do asynchronous tasks, like fetching data, in a way that's easier for developers to use. Instead of having to track whether data is loading, developers can write components like the data is available instantly. It can serve a similar role to `async/await` in that it makes a Promise look synchronous.
 
 The thing is, when I read [the React docs][react suspense docs], I only really learned how to use the `<Suspense>` component. `<Suspense>` is a wrapper component that displays a _fallback state_ (e.g. loading spinner) when any of its children _suspend_. But that doesn't tell me how to write something that suspends. It only tells me how to work with things that already suspend.
 
-It seems like the React team [don't intend][suspense in data frameworks] for you as a developer to write the code that _does the suspending_. Instead, they imagine that you'll use libraries which are already integrated with Suspense. In that case, all you need to do is handle the fallback states with the `<Suspense>` component.
+I think that the React team [doesn't intend][suspense in data frameworks] for you as a developer to write the code that _does the suspending_. Instead, they imagine that you'll use libraries which are already integrated with Suspense. In that case, all you need to do is handle the fallback states with the `<Suspense>` component. They likely have thought a lot about this.
 
-But this isn't super satisfying to me—it feels like I've only seen half the API. So here's a very basic overview of the rest of it. Even if this has limited utility for most product engineers, I think it's helped my mental model to understand the basics of how it works. Keep in mind that Suspense is based on promises, so you'll need to know how they work first.
+But this isn't super satisfying to me—it feels like I've only seen half the API. So here's a very basic overview of the suspending part of it. Even if this has limited pracitcality, I think it's helped my mental model to understand the basics of how it works. Keep in mind that Suspense is based on promises, so you'll need to know how they work first.
 
 ## How to suspend
 
@@ -145,7 +150,7 @@ And here's that as a [sandbox][detailed sandbox].
 
 Keep in mind that we need a data store outside of the `<Suspense>` boundary. We need to track when the data is available to decide whether to throw the promise. We can't track this inside a component that's suspending, because its state is reset when it suspends. Here, I just use a global `Map`. But, you could also pass the store down through a React context.
 
-## Bonus: just use `use()`
+## Just use `use()`
 
 **Note:** `use()` is currently only available in the canary release of React (18.3).
 
@@ -160,7 +165,7 @@ But it's actually more powerful than a hook, and closer to a regular function:
 
 > Unlike all other React Hooks, `use` can be called within loops and conditional statements like `if`. Like other React Hooks, the function that calls use must be a Component or Hook.
 
-To me, this looks like a Suspense-based `await` for client-side React components!
+To me, this looks like a Suspense-based `await`!
 
 In both of our examples from before, we could simply `use()` the promises instead of suspending manually and dealing with state.
 

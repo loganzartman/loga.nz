@@ -1,7 +1,7 @@
 ---
 title: 'Deploy a static site with GitHub Actions'
+description: step-by-step guide to automatically deploy a static site to a server
 date: 2019-12-26T00:00:00-06:00
-tags: []
 draft: false
 toc: true
 ---

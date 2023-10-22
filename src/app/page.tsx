@@ -1,23 +1,20 @@
-import Image from 'next/image';
 import Link from 'next/link';
 
-import imgBannerAnimated from '@/app/banner-animated.svg';
-import imgCat from '@/app/cat.svg';
-import Arrow from '@/lib/components/Arrow';
+import Arrow from '@/image/arrow.svg';
+import BannerAnimated from '@/image/banner-animated.svg';
+import Cat from '@/image/cat.svg';
 
 export default function Home() {
   return (
     <div className="w-full">
       <div className="mt-[calc(max(0,-50vw-100%))] relative w-full flex overflow-hidden justify-center items-center">
-        <Image
-          src={imgBannerAnimated}
+        <BannerAnimated
           alt="The outlines of a geometric L and Z on a backdrop of twinkling stars"
           className="select-none w-full max-w-[1200px] min-w-[800px] object-contain"
         />
       </div>
       <div className="fixed bottom-0 left-[10%]">
-        <Image
-          src={imgCat}
+        <Cat
           alt="A sitting cat rendered in a minimal line-drawing style"
           className="select-none w-[calc(min(90px,max(50px,10vmax)))] transition-transform ease-[cubic-bezier(.85,.59,.6,-0.26)] duration-[4s] delay-[1s] hover:translate-y-full hover:duration-[0.2s] hover:ease-in-out hover:delay-0"
         />

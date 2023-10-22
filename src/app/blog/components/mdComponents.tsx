@@ -1,6 +1,6 @@
 import {Components} from 'react-markdown';
 
-import StarOutline from '@/lib/components/StarOutline';
+import StarOutline from '@/image/star-outline.svg';
 
 export const mdComponents: Components = {
   h1({children, ...rest}) {

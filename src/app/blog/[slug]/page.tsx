@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import Markdown from 'react-markdown';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
@@ -12,8 +11,8 @@ import {
   getPostBySlug,
   getSiblingPosts,
 } from '@/app/blog/lib/posts';
-import imgDivider from '@/app/divider.svg';
-import Arrow from '@/lib/components/Arrow';
+import Arrow from '@/image/arrow.svg';
+import Divider from '@/image/divider.svg';
 
 export async function generateStaticParams() {
   return getAllPosts().map(({data: {slug}}) => ({slug}));
@@ -79,9 +78,8 @@ export default async function Post({params}: {params: {slug: string}}) {
           </Markdown>
         </article>
         <div className="w-full flex mt-12 mb-10 justify-center">
-          <Image
-            src={imgDivider}
-            className="select-none"
+          <Divider
+            className="select-none w-40"
             alt="Decorative divider made of stars"
           />
         </div>

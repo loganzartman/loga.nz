@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
 html,
 body {
   margin: 0;
@@ -11,5 +16,5 @@ body {
 }
 
 .hljs {
-  background: none;
+  background: none !important;
 }

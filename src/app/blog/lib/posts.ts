@@ -26,11 +26,28 @@ export function getPostBySlug(slug: string): Post {
   const fullPath = join(postsDirectory, path);
   const fileContents = fs.readFileSync(fullPath, 'utf8');
   const {content, data} = matter(fileContents);
-  const {date, ...rest} = data;
+
+  const date = new Date(data.date);
+  if (isNaN(date.getTime()))
+    throw new Error(`Post '${slug}' has invalid date: ${data.date}`);
+
   return {
     content,
-    data: {...rest, slug, date: date ? new Date(date) : new Date()},
+    data: {...data, slug, date},
   };
+}
+
+export function getSiblingPosts(slug: string): {
+  next: Post | undefined;
+  prev: Post | undefined;
+} {
+  const posts = getAllPosts().sort(
+    (a, b) => a.data.date.getTime() - b.data.date.getTime(),
+  );
+  const index = posts.findIndex((post) => post.data.slug === slug);
+  const prev = index > 0 ? posts[index - 1] : undefined;
+  const next = index < posts.length - 1 ? posts[index + 1] : undefined;
+  return {prev, next};
 }
 
 export function getAllPosts(): Post[] {

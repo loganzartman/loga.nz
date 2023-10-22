@@ -24,16 +24,17 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="px"
      showgrid="false"
-     inkscape:zoom="4.4578283"
-     inkscape:cx="156.35416"
-     inkscape:cy="95.786552"
+     inkscape:zoom="25.217285"
+     inkscape:cx="19.768187"
+     inkscape:cy="38.505335"
      inkscape:window-width="3840"
      inkscape:window-height="2126"
      inkscape:window-x="2149"
      inkscape:window-y="858"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1" />
-  <style>
+  <style
+     id="style3">
     path {
       vector-effect: non-scaling-stroke;
     }
@@ -70,8 +71,8 @@
          d="M 58.163722,101.1824 C 43.985467,75.449293 47.541322,35.181526 78.05016,22.537176 108.55904,9.8928236 135.96643,12.475016 150.55019,17.268674"
          id="path1044" />
       <path
-         style="fill:#fff2dc;stroke:none;stroke-width:0.999999px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="m -155.20826,20.399778 c -1.53986,-2.997101 -2.58493,-4.992318 -3.9577,-4.326883 -1.3728,0.665447 -1.11212,3.462418 -1.13325,4.430302 -0.0227,0.967873 0.45725,4.809442 1.88549,4.135453 1.42821,-0.673984 3.20546,-4.238872 3.20546,-4.238872 z"
+         style="fill:#fff2dc;stroke:none;stroke-width:1.55485px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m -153.79395,20.437907 c -2.39425,-4.660038 -4.01917,-7.762299 -6.15362,-6.727648 -2.1345,1.034669 -1.72918,5.383536 -1.76203,6.888449 -0.0353,1.504896 0.71095,7.477954 2.93165,6.430003 2.22065,-1.047943 4.984,-6.590804 4.984,-6.590804 z"
          id="path1046" />
       <path
          style="fill:none;stroke:#fff2dc;stroke-width:0.999999px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"

@@ -9,6 +9,8 @@ import {
   Work_Sans,
 } from 'next/font/google';
 
+import NavBar from '@/lib/components/NavBar';
+
 const display = DM_Serif_Display({
   subsets: ['latin'],
   weight: '400',
@@ -40,10 +42,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
-    <html lang="en">
+    <html lang="en" className="min-h-full">
       <body
-        className={`${display.variable} ${sans.variable} ${serif.variable} ${mono.variable} font-sans font-normal`}
+        className={`${display.variable} ${sans.variable} ${serif.variable} ${mono.variable} font-sans font-normal min-h-full`}
       >
+        <div className="z-10 fixed w-full top-8 flex flex-row justify-center">
+          <NavBar />
+        </div>
         {children}
       </body>
     </html>

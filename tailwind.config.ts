@@ -6,12 +6,13 @@ const config: Config = {
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
       colors: {
         highlight: '#cb93e9',
+        background: '#1f1b20',
         brand: {
           50: '#FFFBF5',
           100: '#FFF9F0',

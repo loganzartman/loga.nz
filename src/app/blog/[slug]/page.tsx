@@ -65,7 +65,7 @@ export default async function Post({params}: {params: {slug: string}}) {
             </div>
           </Link>
         </div>
-        <article className="prose max-w-[70ch] prose-brand !prose-invert prose-headings:font-serif prose-a:no-underline prose-a:prose-headings:text-brand-200 prose-code:overflow-auto !prose-pre:overflow-x-auto !prose-pre:whitespace-nowrap">
+        <article className="prose max-w-[72ch] prose-brand !prose-invert prose-headings:font-serif prose-a:no-underline prose-a:prose-headings:text-brand-200 prose-pre:-mx-8 prose-pre:p-0 md:prose-pre:mx-0 md:prose-pre:p-2">
           <Markdown
             components={mdComponents}
             remarkPlugins={[remarkGfm]}

@@ -42,7 +42,7 @@ export default async function Blog() {
   ));
 
   return (
-    <div className="w-[60ch] max-w-full flex flex-col gap-6">
+    <div className="max-w-[60ch] flex flex-col gap-6">
       <div className="mb-4">
         <h1 className="font-serif text-5xl">posts on my blog:</h1>
       </div>

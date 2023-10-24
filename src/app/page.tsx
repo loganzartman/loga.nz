@@ -6,11 +6,11 @@ import Cat from '@/image/cat.svg';
 
 export default function Home() {
   return (
-    <div className="w-full">
-      <div className="mt-[calc(max(0,-50vw-100%))] relative w-full flex overflow-hidden justify-center items-center">
+    <div className="">
+      <div className="mt-[calc(max(0,-50vw-100%))] relative flex overflow-hidden justify-center items-center">
         <BannerAnimated
           alt="The outlines of a geometric L and Z on a backdrop of twinkling stars"
-          className="select-none w-full max-w-[1200px] min-w-[800px] object-contain"
+          className="select-none max-w-[1200px] object-contain"
         />
       </div>
       <div className="fixed bottom-0 left-[10%]">
@@ -26,13 +26,13 @@ export default function Home() {
             <div>i&apos;m on:</div>
             <a
               href="https://github.com/loganzartman"
-              className="transition-all duration-200 underline decoration-from-font decoration-dotted p-2 -m-2 underline-offset-2 hover:underline-offset-8 hover:text-highlight hover:decoration-solid"
+              className="transition-all duration-200 text-brand-300 underline decoration-dotted p-2 -m-2 underline-offset-2 hover:underline-offset-8 hover:text-highlight hover:decoration-solid"
             >
               github
             </a>
             <a
               href="https://linkedin.com/in/logan-zartman"
-              className="transition-all duration-200 underline decoration-from-font decoration-dotted p-2 -m-2 underline-offset-2 hover:underline-offset-8 hover:text-highlight hover:decoration-solid"
+              className="transition-all duration-200 text-brand-300 underline decoration-dotted p-2 -m-2 underline-offset-2 hover:underline-offset-8 hover:text-highlight hover:decoration-solid"
             >
               linkedin
             </a>

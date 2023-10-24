@@ -55,7 +55,7 @@ export default async function Post({params}: {params: {slug: string}}) {
 
   return (
     <div className="flex flex-col items-center">
-      <div>
+      <div className="max-w-full">
         <div className="group transition-all mb-2 hover:text-highlight hover:stroke-highlight">
           <Link href="/blog">
             <div className="flex flex-row items-center relative">
@@ -64,7 +64,7 @@ export default async function Post({params}: {params: {slug: string}}) {
             </div>
           </Link>
         </div>
-        <article className="prose max-w-[70ch] prose-brand !prose-invert prose-headings:font-serif prose-a:no-underline prose-a:prose-headings:text-brand-200">
+        <article className="prose max-w-[70ch] prose-brand !prose-invert prose-headings:font-serif prose-a:no-underline prose-a:prose-headings:text-brand-200 prose-code:overflow-auto !prose-pre:overflow-x-auto !prose-pre:whitespace-nowrap">
           <Markdown
             components={mdComponents}
             remarkPlugins={[remarkGfm]}
@@ -77,7 +77,7 @@ export default async function Post({params}: {params: {slug: string}}) {
             {post.content}
           </Markdown>
         </article>
-        <div className="w-full flex mt-12 mb-10 justify-center">
+        <div className="flex mt-12 mb-10 justify-center">
           <Divider
             className="select-none w-40"
             alt="Decorative divider made of stars"

@@ -41,7 +41,7 @@ export default function Home() {
         <div className="group transition-all mt-10 hover:text-highlight hover:stroke-highlight">
           <Link href="/blog">
             <div className="flex flex-row items-center">
-              <div className="font-serif">read my blog?</div>
+              <div className="font-serif mr-2">read my blog?</div>
               <Arrow className="transition-transform h-[1.5em] group-hover:translate-x-3" />
             </div>
             <div className="text-sm -mt-2">it&apos;s about computers.</div>

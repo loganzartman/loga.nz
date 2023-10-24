@@ -60,7 +60,7 @@ export default async function Post({params}: {params: {slug: string}}) {
         <div className="group transition-all mb-2 hover:text-highlight hover:stroke-highlight">
           <Link href="/blog">
             <div className="flex flex-row items-center relative">
-              <Arrow className="absolute transition-transform right-full mr-4 w-[1.5em] h-[1.5em] group-hover:-translate-x-3 -scale-x-100" />
+              <Arrow className="absolute transition-transform right-full mr-1 md:mr-4 w-[1.5em] h-[1.5em] group-hover:-translate-x-3 -scale-x-100" />
               <div className="font-serif">back to posts</div>
             </div>
           </Link>

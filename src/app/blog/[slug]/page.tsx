@@ -56,16 +56,8 @@ export default async function Post({params}: {params: {slug: string}}) {
   const post = getPostBySlug(slug);
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center -mt-2">
       <div className="max-w-full">
-        <div className="group transition-all mb-2 hover:text-highlight hover:stroke-highlight">
-          <Link href="/blog">
-            <div className="flex flex-row items-center relative">
-              <Arrow className="absolute transition-transform right-full mr-1 md:mr-4 w-[1.5em] h-[1.5em] group-hover:-translate-x-3 -scale-x-100" />
-              <div className="font-serif">back to posts</div>
-            </div>
-          </Link>
-        </div>
         <Date date={post.data.date} className="text-brand-300" />
         <article className="prose max-w-[72ch] prose-brand !prose-invert prose-headings:font-serif prose-a:no-underline prose-a:prose-headings:text-brand-200 prose-pre:-mx-8 prose-pre:p-0 md:prose-pre:mx-0 md:prose-pre:p-2">
           <Markdown

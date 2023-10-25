@@ -2,10 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
 html,
 body {
   margin: 0;
   width: 100%;
-  background: rgb(31, 27, 32);
+  background: #1f1b20;
   color: #fff2dc;
+}
+
+.hljs {
+  background: none !important;
 }

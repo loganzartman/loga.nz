@@ -24,7 +24,7 @@ export default function Home() {
           <div className="font-display text-5xl md:text-7xl">
             hey, i&apos;m Logan
           </div>
-          <div className="flex flex-row gap-4 mt-2 text-2xl md:text-3xl">
+          <div className="flex flex-row gap-4 mt-5 text-2xl md:text-3xl">
             <div>i&apos;m on:</div>
             <a
               href="https://github.com/loganzartman"
@@ -41,7 +41,7 @@ export default function Home() {
           </div>
         </div>
         <div className="group transition-all mt-10 hover:text-highlight hover:stroke-highlight">
-          <Link href="/blog">
+          <Link href="/blog" className="flex flex-col items-center mb-10">
             <div className="flex flex-row items-center mb-1 text-3xl">
               <div className="font-serif mr-2">read my blog?</div>
               <Arrow className="transition-transform h-[1.5em] group-hover:translate-x-3" />

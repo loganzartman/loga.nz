@@ -12,9 +12,9 @@ export default function NavBar() {
     () =>
       ({
         floating: {
-          top: '32px',
+          transform: 'translateY(32px)',
         },
-        stuck: {top: '-2px'},
+        stuck: {transform: 'translateY(-2px)'},
       }) as const,
     [],
   );
@@ -47,8 +47,8 @@ export default function NavBar() {
       variants={containerVariants}
       initial="floating"
       animate={state}
-      transition={{top: {type: 'spring', bounce: 0.5}}}
-      className="z-10 fixed left-0 right-0 flex flex-row justify-center"
+      transition={{transform: {type: 'spring', bounce: 0.6}}}
+      className="z-10 fixed top-0 left-0 right-0 flex flex-row justify-center"
     >
       <MotionDiv
         variants={barVariants}

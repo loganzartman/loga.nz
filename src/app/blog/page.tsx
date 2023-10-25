@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 import {getAllPosts, Post} from '@/app/blog/lib/posts';
 import CatLeft from '@/image/cat-left.svg';
+import Date from '@/lib/components/Date';
 
 function PostListing({post}: {post: Post}) {
   const tags = post.data.tags && (
@@ -29,9 +30,10 @@ function PostListing({post}: {post: Post}) {
         </div>
       </Link>
       {tags}
-      <div className="transition-colors text-brand-300 group-hover:text-highlight">
-        {post.data.date.toLocaleDateString()}
-      </div>
+      <Date
+        date={post.data.date}
+        className="transition-colors text-brand-300 group-hover:text-highlight"
+      />
     </div>
   );
 }

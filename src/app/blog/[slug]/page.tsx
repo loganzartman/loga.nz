@@ -13,6 +13,7 @@ import {
 } from '@/app/blog/lib/posts';
 import Arrow from '@/image/arrow.svg';
 import Divider from '@/image/divider.svg';
+import Date from '@/lib/components/Date';
 
 export async function generateStaticParams() {
   return getAllPosts().map(({data: {slug}}) => ({slug}));
@@ -65,6 +66,7 @@ export default async function Post({params}: {params: {slug: string}}) {
             </div>
           </Link>
         </div>
+        <Date date={post.data.date} className="text-brand-300" />
         <article className="prose max-w-[72ch] prose-brand !prose-invert prose-headings:font-serif prose-a:no-underline prose-a:prose-headings:text-brand-200 prose-pre:-mx-8 prose-pre:p-0 md:prose-pre:mx-0 md:prose-pre:p-2">
           <Markdown
             components={mdComponents}

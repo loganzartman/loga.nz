@@ -46,9 +46,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
       <body
         className={`${display.variable} ${sans.variable} ${serif.variable} ${mono.variable} font-sans font-normal min-h-full`}
       >
-        <div className="z-10 fixed left-0 right-0 top-8 flex flex-row justify-center">
-          <NavBar />
-        </div>
+        <NavBar />
         {children}
       </body>
     </html>

@@ -6,10 +6,12 @@ import rehypeSlug from 'rehype-slug';
 import remarkGfm from 'remark-gfm';
 
 import {mdComponents} from '@/app/blog/components/mdComponents';
+import {createDiscussionHref} from '@/app/blog/lib/discussions';
 import {
   getAllPosts,
   getPostBySlug,
   getSiblingPosts,
+  Post,
 } from '@/app/blog/lib/posts';
 import Arrow from '@/image/arrow.svg';
 import Divider from '@/image/divider.svg';
@@ -19,12 +21,19 @@ export async function generateStaticParams() {
   return getAllPosts().map(({data: {slug}}) => ({slug}));
 }
 
-function Footer({slug}: {slug: string}) {
-  const {next, prev} = getSiblingPosts(slug);
+async function Footer({post}: {post: Post}) {
+  const {next, prev} = getSiblingPosts(post.data.slug);
+  const discussionHref = await createDiscussionHref(post);
 
   return (
     <footer className="mb-8 flex flex-col items-center justify-center">
-      <div className="font-serif text-3xl mb-4">read more?</div>
+      <a
+        href={discussionHref}
+        className="px-3 py-2 rounded-full ring-1 ring-brand-200 transition-all hover:ring-highlight hover:text-highlight"
+      >
+        discuss this post
+      </a>
+      <div className="font-serif text-3xl mt-10 mb-2">read more?</div>
       <div className="flex flex-col items-center gap-2 my-2">
         {next && (
           <Link href={`/blog/${next.data.slug}`}>
@@ -78,7 +87,7 @@ export default async function Post({params}: {params: {slug: string}}) {
             alt="Decorative divider made of stars"
           />
         </div>
-        <Footer slug={slug} />
+        <Footer post={post} />
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import Markdown from 'react-markdown';
+import {MDXRemote} from 'next-mdx-remote/rsc';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeSlug from 'rehype-slug';
@@ -69,17 +69,20 @@ export default async function Post({params}: {params: {slug: string}}) {
       <div className="max-w-full">
         <Date date={post.data.date} className="text-brand-300" />
         <article className="prose max-w-[72ch] prose-brand !prose-invert prose-headings:font-serif prose-a:no-underline prose-a:prose-headings:text-brand-200 prose-pre:-mx-8 prose-pre:p-0 md:prose-pre:mx-0 md:prose-pre:p-2">
-          <Markdown
+          <MDXRemote
+            source={post.content}
+            options={{
+              mdxOptions: {
+                remarkPlugins: [remarkGfm],
+                rehypePlugins: [
+                  rehypeHighlight as any,
+                  rehypeSlug,
+                  [rehypeAutolinkHeadings, {behavior: 'wrap'}],
+                ],
+              },
+            }}
             components={mdComponents}
-            remarkPlugins={[remarkGfm]}
-            rehypePlugins={[
-              rehypeHighlight,
-              rehypeSlug,
-              [rehypeAutolinkHeadings, {behavior: 'wrap'}],
-            ]}
-          >
-            {post.content}
-          </Markdown>
+          />
         </article>
         <div className="flex mt-12 mb-10 justify-center">
           <Divider

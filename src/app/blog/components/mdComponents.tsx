@@ -1,8 +1,8 @@
-import {Components} from 'react-markdown';
+import {MDXComponents} from 'mdx/types';
 
 import StarOutline from '@/image/star-outline.svg';
 
-export const mdComponents: Components = {
+export const mdComponents: MDXComponents = {
   h1({children, ...rest}) {
     return (
       <h1 {...rest} className="relative flex flex-row items-center">

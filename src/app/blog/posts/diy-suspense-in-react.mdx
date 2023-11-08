@@ -186,7 +186,7 @@ Eventually we want the component to _un_-suspend. When React catches the Promise
 
 After a component throws, React doesn't have any magic way to jump back to where the render left off. Instead, it simply re-renders the entire component from scratch. Since suspending can interrupt rendering before all hooks have run, React can't maintain any of the state from the incomplete render. So, when a component is un-suspended, it's like it's remounted.
 
-If the suspending code is implemented correctly, it will not throw the Promise once it's resolved. This allows the rendering to complete, and the component to un-suspend.
+If the suspending code is implemented correctly, it will not throw the Promise once the promise has resolved. This allows the rendering to complete, and the component to un-suspend.
 
 ## TL;DR
 
@@ -194,7 +194,11 @@ To suspend, we throw a Promise. React catches the Promise at the nearest `<Suspe
 
 ## Just use `use()`
 
-**Note:** `use()` is currently only available in the canary release of React (18.3).
+<Admonition type="note">
+
+`use()` is currently only available in the canary release of React (18.3).
+
+</Admonition>
 
 I think Suspense feels a bit like `await`. It makes a Promise look synchronous by interrupting rendering and restarting once the Promise resolves. I also mentioned how the React team is a bit hesitant about people writing their own code that suspends.
 

@@ -12,13 +12,27 @@ date: 2023-11-04T12:00:00
 
 **Not familiar with Suspense?** Check out my [two-minute intro-by-example](/blog/suspense-in-2-minutes).
 
-When I started learning the new features in [React 18][react 18], I was pretty interested in [Suspense][react suspense docs].
+When I started learning the new features in [React 18][react 18], I was pretty interested in [Suspense][react suspense docs]. Suspense [promises][suspense post] to make "UI loading state a first class declarative concept in React". In other words, you tell React what to show when something is loading. You don't have to repeat yourself for every network request or image or anything else that could be loading.
+
+```tsx
+function MyPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      /* If anything in any of these components is loading, we'll see the
+      loading spinner! */
+      <MyHeader />
+      <MyContent />
+      <MyFooter />
+    </Suspense>
+  );
+}
+```
 
 Even after reading the docs, I was still curious about something: how do you suspend? In other words, what triggers the fallback state in a `<Suspense>` boundary? The docs dance around this part; they don't even define the component that suspends.
 
-I think that the React team [doesn't intend][suspense in data frameworks] for most people to write code that suspends. Instead, they imagine you'll use libraries that are already integrated with Suspense. In that case, all you need to do is handle the fallback states with the `<Suspense>` component. They likely have thought a lot about this and have good reasons for it!
+I think that the React team [doesn't intend][suspense in data frameworks] for most people to write code that suspends. Instead, you'll use libraries that are already integrated with Suspense. In that case, all you need to do is handle the fallback states with the `<Suspense>` component. They likely have thought a lot about this and have good reasons for it!
 
-But this isn't super satisfying to me—it feels like I've only seen half the API. So here's a very basic overview of the suspending part of it. Even if this has limited practicality, I think it's helped my mental model to understand the basics of how it works. Keep in mind that Suspense is based on [promises][promise], so you'll need to know how they work first.
+But this isn't super satisfying to me. It feels like I've only seen half the API. So here's a very basic overview of the suspending part of it. Even if this isn't important to know most of the time, I think it's helped my mental model to understand the basics of how it works. Keep in mind that Suspense is based on [promises][promise], so you'll need to know how they work first.
 
 ## When to suspend
 
@@ -32,7 +46,7 @@ const helloPromise = new Promise<string>((resolve) => {
 });
 ```
 
-Without Suspense, we can hook the promise into the React lifecycle using state.
+Without Suspense, we can hook the promise into the React lifecycle using [state][react state].
 
 There are three possible states of the promise:
 
@@ -40,7 +54,7 @@ There are three possible states of the promise:
 2. Resolved
 3. Errored
 
-Let's create a hook that accepts a promise and outputs its state:
+Let's create a hook that accepts a promise and maps _its_ state to _React_ state:
 
 ```tsx
 import {useState, useEffect, useMemo} from 'react';
@@ -70,6 +84,12 @@ function usePromise<T>(promise: Promise<T>): {
   return useMemo(() => ({loading, result, error}), [loading, result, error]);
 }
 ```
+
+<Admonition type="note">
+
+I used `useMemo()` here because I'm returning an object: `{loading, result, error}`. Every time this hook renders, the identity of this object changes, and might cause consumers of this hook to rerender unnecessarily. Since it's memoized, it will only change when its contents change.
+
+</Admonition>
 
 Now we can use it in a component:
 
@@ -214,6 +234,8 @@ function MyComponent({promise}) {
 
 [promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
 [react 18]: https://react.dev/blog/2022/03/29/react-v18
+[suspense post]: https://react.dev/blog/2022/03/29/react-v18#new-suspense-features
+[react state]: https://react.dev/learn/state-a-components-memory
 [react suspense docs]: https://react.dev/reference/react/Suspense
 [suspense in data frameworks]: https://react.dev/blog/2022/03/29/react-v18#suspense-in-data-frameworks
 [simple sandbox]: https://codesandbox.io/s/simple-suspense-z2xhgv

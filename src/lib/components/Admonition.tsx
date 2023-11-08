@@ -23,10 +23,8 @@ export default function Admonition({
   type: Type;
 }) {
   return (
-    <div
-      className={`flex flex-col prose-p:m-0 p-4 rounded-lg ring-1 ${classNames[type]}`}
-    >
-      <div className="flex flex-row items-start gap-2 mb-2 font-bold lowercase">
+    <div className={`flex flex-col px-4 rounded-lg ring-1 ${classNames[type]}`}>
+      <div className="flex flex-row items-start gap-2 mt-4 -mb-2 font-bold lowercase">
         {icons[type]}
         {messages[type]}
       </div>

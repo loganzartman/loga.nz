@@ -18,7 +18,7 @@ Even after reading the docs, I was still curious about something: how do you sus
 
 I think that the React team [doesn't intend][suspense in data frameworks] for most people to write code that suspends. Instead, they imagine you'll use libraries that are already integrated with Suspense. In that case, all you need to do is handle the fallback states with the `<Suspense>` component. They likely have thought a lot about this and have good reasons for it!
 
-But this isn't super satisfying to me—it feels like I've only seen half the API. So here's a very basic overview of the suspending part of it. Even if this has limited pracitcality, I think it's helped my mental model to understand the basics of how it works. Keep in mind that Suspense is based on [promises][promise], so you'll need to know how they work first.
+But this isn't super satisfying to me—it feels like I've only seen half the API. So here's a very basic overview of the suspending part of it. Even if this has limited practicality, I think it's helped my mental model to understand the basics of how it works. Keep in mind that Suspense is based on [promises][promise], so you'll need to know how they work first.
 
 ## When to suspend
 

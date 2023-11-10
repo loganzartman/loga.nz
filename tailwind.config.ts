@@ -10,6 +10,11 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      boxShadow: {
+        glow: '0px 0px 48px -20px var(--tw-shadow-color), 0px 0px 12px -6px var(--tw-shadow-color), 0px 0px 9px -3px var(--tw-shadow-color), inset 0px 0px 16px -8px var(--tw-shadow-color), inset 0px -24px 64px -48px var(--tw-shadow-color)',
+        'big-glow':
+          '0px 0px 48px -12px var(--tw-shadow-color), 0px 0px 9px -3px var(--tw-shadow-color), 0px 0px 9px -3px var(--tw-shadow-color), inset 0px 0px 16px -8px var(--tw-shadow-color), inset 0px -10px 48px -32px var(--tw-shadow-color)',
+      },
       colors: {
         highlight: '#cb93e9',
         background: '#1f1b20',

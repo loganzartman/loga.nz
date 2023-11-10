@@ -69,7 +69,7 @@ export default async function Post({params}: {params: {slug: string}}) {
     <div className="flex flex-col items-center -mt-2">
       <div className="max-w-full">
         <Date date={post.data.date} className="text-brand-300" />
-        <article className="prose max-w-[72ch] prose-brand !prose-invert prose-headings:font-serif prose-a:no-underline prose-a:prose-headings:text-brand-200 prose-pre:-mx-8 prose-pre:p-0 md:prose-pre:mx-0 md:prose-pre:p-2">
+        <article className="prose max-w-[72ch] prose-brand !prose-invert prose-headings:font-serif prose-a:no-underline prose-a:prose-headings:text-brand-200 prose-pre:-mx-10 prose-pre:p-4 md:prose-pre:rounded-xl md:prose-pre:mx-0 md:prose-pre:shadow-glow md:prose-pre:shadow-black/50">
           <Post components={mdComponents} />
         </article>
         <div className="flex mt-12 mb-10 justify-center">

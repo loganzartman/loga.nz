@@ -53,7 +53,7 @@ export default function NavBar() {
       <MotionDiv
         variants={barVariants}
         style={{borderRadius: '20px'}}
-        className="flex flex-row items-center h-[40px] gap-4 px-5 ring-1 ring-brand-100 bg-background/50 backdrop-blur-sm"
+        className="flex flex-row items-center h-[40px] gap-4 px-5 ring-1 ring-brand-100/80 bg-background/50 backdrop-blur-sm backdrop-saturate-200 shadow-big-glow shadow-brand-100/70"
       >
         <NavItem label="about" href="/" />
         <NavItem label="blog" href="/blog" />

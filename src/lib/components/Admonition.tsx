@@ -1,21 +1,20 @@
+import {HiOutlineLightBulb} from 'react-icons/hi';
+import {IoMdInformationCircleOutline} from 'react-icons/io';
+import {PiWarningBold} from 'react-icons/pi';
+
 export type Type = 'note' | 'warning' | 'tip';
 
 const icons: Record<Type, React.ReactNode> = {
-  note: <div>🛈</div>,
-  warning: <div>⚠</div>,
-  tip: <div>💡</div>,
-};
-
-const messages: Record<Type, React.ReactNode> = {
-  note: <div>Note</div>,
-  warning: <div>Warning!</div>,
-  tip: <div>Tip</div>,
+  note: <IoMdInformationCircleOutline alt="Information" />,
+  warning: <PiWarningBold alt="Warning" />,
+  tip: <HiOutlineLightBulb alt="Lightbulb" />,
 };
 
 const classNames: Record<Type, string> = {
-  note: 'text-indigo-100 bg-indigo-500/10 ring-indigo-500',
-  warning: 'text-amber-100 bg-amber-500/10 ring-amber-500',
-  tip: 'text-violet-100 bg-violet-500/10 ring-violet-500',
+  note: 'text-indigo-100 bg-indigo-600/20 ring-indigo-400/10 shadow-indigo-500/70',
+  warning:
+    'text-amber-100 bg-amber-600/20 ring-amber-300/30 shadow-amber-500/100',
+  tip: 'text-teal-100 bg-teal-600/20 ring-teal-300/30 shadow-teal-500/100',
 };
 
 export default function Admonition({
@@ -26,12 +25,16 @@ export default function Admonition({
   type: Type;
 }) {
   return (
-    <div className={`flex flex-col px-4 rounded-lg ring-1 ${classNames[type]}`}>
-      <div className="flex flex-row items-start gap-2 mt-4 -mb-2 font-bold lowercase">
-        {icons[type]}
-        {messages[type]}
+    <div
+      className={`flex flex-col pr-4 my-4 rounded-2xl ring-1 shadow-glow ${classNames[type]}`}
+    >
+      <div className="flex flex-row items-start">
+        <div className="text-xl pl-4 pr-2 mt-7">{icons[type]}</div>
+        {/* outer div allows for margin collapse */}
+        <div>
+          <div className="my-6">{children}</div>
+        </div>
       </div>
-      <div>{children}</div>
     </div>
   );
 }

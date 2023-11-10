@@ -1,4 +1,5 @@
 import {MDXProps} from 'mdx/types';
+import {Metadata} from 'next';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 
@@ -15,8 +16,18 @@ import Arrow from '@/image/arrow.svg';
 import Divider from '@/image/divider.svg';
 import Date from '@/lib/components/Date';
 
+type Props = {params: {slug: string}};
+
 export async function generateStaticParams() {
   return getAllPosts().map(({data: {slug}}) => ({slug}));
+}
+
+export function generateMetadata({params}: Props): Metadata {
+  const post = getPostBySlug(params.slug);
+  return {
+    title: `${post.data.title} - loganz`,
+    description: post.data.description,
+  };
 }
 
 async function Footer({post}: {post: Post}) {
@@ -58,7 +69,7 @@ async function Footer({post}: {post: Post}) {
   );
 }
 
-export default async function Post({params}: {params: {slug: string}}) {
+export default async function Post({params}: Props) {
   const {slug} = params;
   const post = getPostBySlug(slug);
   const Post = dynamic<MDXProps>(

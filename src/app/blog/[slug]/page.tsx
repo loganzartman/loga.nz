@@ -27,9 +27,9 @@ export function generateMetadata({params}: Props): Metadata {
   return {
     title: `${post.data.title} - loganz' blog`,
     description: post.data.description,
-    openGraph: {
-      images: `/blog/${params.slug}/opengraph-image.png`,
-    },
+    // openGraph: {
+    //   images: `/blog/${params.slug}/og.png`,
+    // },
   };
 }
 

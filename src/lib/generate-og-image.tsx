@@ -35,16 +35,18 @@ export async function generateOgImage({
             left: '0%',
             width: '100%',
             height: '100%',
+            paddingLeft: '2rem',
+            paddingBottom: '2rem',
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
+            alignItems: 'flex-end',
+            justifyContent: 'flex-start',
             color: '#fff2dc',
           }}
         >
           <div
             style={{
               fontFamily: 'font-serif',
-              fontSize: '5rem',
+              fontSize: '7rem',
               // @ts-expect-error
               textWrap: 'balance',
             }}

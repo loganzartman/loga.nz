@@ -4,17 +4,13 @@ import {join} from 'path';
 
 const cwd = join(process.cwd(), 'src', 'lib');
 
-function loadDataUrl(relPath: string): string {
-  // Read the file
-  const fileData = fs.readFileSync(join(cwd, relPath));
+function loadFile(relPath: string): Buffer {
+  return fs.readFileSync(join(cwd, relPath));
+}
 
-  // Get MIME type of the file
-  const mimeType = 'image/png'; // Example for a PNG image, change as needed
-
-  // Convert to Base64
+function loadDataUrl(relPath: string, mimeType: string): string {
+  const fileData = loadFile(relPath);
   const base64Data = fileData.toString('base64');
-
-  // Create and return the Data URL
   return `data:${mimeType};base64,${base64Data}`;
 }
 
@@ -27,7 +23,7 @@ export async function generateOgImage({
     (
       <div style={{display: 'flex'}}>
         <img
-          src={loadDataUrl('og-background.png')}
+          src={loadDataUrl('og-background.png', 'image/png')}
           alt=""
           width={1200}
           height={630}
@@ -61,14 +57,14 @@ export async function generateOgImage({
     {
       width: 1200,
       height: 630,
-      // fonts: [
-      // {
-      //   name: 'font-serif',
-      //   data: DMSerif,
-      //   weight: 400,
-      //   style: 'normal',
-      // },
-      // ],
+      fonts: [
+        {
+          name: 'font-serif',
+          data: loadFile('DMSerifDisplay-Regular.ttf'),
+          weight: 400,
+          style: 'normal',
+        },
+      ],
     },
   );
 }

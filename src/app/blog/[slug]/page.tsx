@@ -25,7 +25,7 @@ export async function generateStaticParams() {
 export function generateMetadata({params}: Props): Metadata {
   const post = getPostBySlug(params.slug);
   return {
-    title: `${post.data.title} - loganz`,
+    title: `${post.data.title} - loganz' blog`,
     description: post.data.description,
     openGraph: {
       images: `/blog/${params.slug}/opengraph-image.png`,

@@ -1,4 +1,10 @@
+import {Metadata} from 'next';
+
 import BannerShort from '@/image/banner-short-animated.svg';
+
+export const metadata: Metadata = {
+  title: "loganz' blog",
+};
 
 export default function BlogLayout({children}: {children: React.ReactNode}) {
   return (

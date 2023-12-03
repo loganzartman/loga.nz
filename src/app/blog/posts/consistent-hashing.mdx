@@ -1,0 +1,13 @@
+---
+title: Consistent hashing
+description: an interactive introduction to consistent hashing
+date: 2023-12-02T12:00:00
+---
+
+import FlattenRing from './consistent-hashing/FlattenRing';
+
+# Consistent hashing
+
+Consistent hashing is a way to hash a key to one of `N` values, such that if we change `N`, most keys still map to the same value, and each `i in N` has roughly the same number of keys.
+
+<FlattenRing />

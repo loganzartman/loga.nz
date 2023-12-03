@@ -45,12 +45,14 @@ export default function Ring({servers, keys, circle, seed}: Props) {
       translateX: Math.cos((pos + 0.25) * Math.PI * 2),
       translateY: Math.sin((pos + 0.25) * Math.PI * 2),
       scale: 1,
+      opacity: 1,
       fill: `hsl(${(i / servers.length) * 0.9 * 360}, 80%, 80%)`,
     };
     const lineProps = {
       translateX: pos * 2 - 1,
       translateY: 0,
       scale: 1,
+      opacity: 1,
       fill: `hsl(${(i / servers.length) * 0.9 * 360}, 80%, 80%)`,
     };
 
@@ -58,8 +60,8 @@ export default function Ring({servers, keys, circle, seed}: Props) {
       <motion.g
         key={server}
         custom={i}
-        initial={{scale: 0, translateX: 0, translateY: 0}}
-        exit={{scale: 0, translateX: 0, translateY: 0}}
+        initial={{opacity: 0, scale: 0, translateX: 0, translateY: 0}}
+        exit={{opacity: 0, scale: 0, translateX: 0, translateY: 0}}
         animate={circle ? circleProps : lineProps}
         transition={{type: 'spring', stiffness: 200, damping: 40}}
       >

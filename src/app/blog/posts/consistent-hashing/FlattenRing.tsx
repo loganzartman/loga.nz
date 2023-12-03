@@ -25,7 +25,7 @@ export default function FlattenRing() {
   const [seed, setSeed] = useState(42);
   const [circle, setCircle] = useState(false);
   const [serverCount, setServerCount] = useState(3);
-  const servers = Array.from({length: serverCount}).map((_, i) => `S${i}`);
+  const servers = Array.from({length: serverCount}).map((_, i) => `S${i + 1}`);
   return (
     <div className="flex flex-col">
       <Ring
@@ -47,7 +47,7 @@ export default function FlattenRing() {
         <input
           type="range"
           min="1"
-          max="6"
+          max="7"
           step="1"
           value={serverCount}
           onChange={(e) => setServerCount(e.target.valueAsNumber)}

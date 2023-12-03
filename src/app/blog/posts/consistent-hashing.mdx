@@ -1,13 +1,15 @@
 ---
-title: Consistent hashing
+title: Consistent hashing demo
 description: an interactive introduction to consistent hashing
 date: 2023-12-02T12:00:00
 ---
 
 import FlattenRing from './consistent-hashing/FlattenRing';
 
-# Consistent hashing
+# Consistent hashing demo
 
-Consistent hashing is a way to hash a key to one of `N` values, such that if we change `N`, most keys still map to the same value, and each `i in N` has roughly the same number of keys.
+This is a simple interactive demo of consistent hashing.
+
+> Consistent hashing is a special kind of hashing technique such that when a hash table is resized, only n/m keys need to be remapped on average where n is the number of keys and m is the number of slots. In contrast, in most traditional hash tables, a change in the number of array slots causes nearly all keys to be remapped
 
 <FlattenRing />

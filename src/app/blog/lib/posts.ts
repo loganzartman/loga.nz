@@ -14,7 +14,10 @@ export type Post = {
 };
 
 export function getPostPaths() {
-  return fs.readdirSync(postsDirectory);
+  return fs
+    .readdirSync(postsDirectory, {withFileTypes: true})
+    .filter((d) => d.isFile())
+    .map((d) => d.name);
 }
 
 export function getSlugByPath(path: string): string {

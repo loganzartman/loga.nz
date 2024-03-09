@@ -1,7 +1,8 @@
 'use client';
 
+import {Reorder} from 'framer-motion';
 import {Nunito, Overpass, Work_Sans} from 'next/font/google';
-import {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 
 import {Button} from '@/app/reacjin/Button';
 import styles from '@/app/reacjin/styles.module.css';
@@ -86,17 +87,34 @@ function ImageCanvas({
   );
 }
 
-function LayerPane({layers}: {layers: Layer[]}) {
-  const layersDisplay = layers.map((layer) => (
-    <div key={layer.id} className="p-2 transition-colors hover:bg-brand-400/20">
-      {layer.plugin}
-    </div>
+function LayerPane({
+  layers,
+  setLayers,
+}: {
+  layers: Layer[];
+  setLayers: React.Dispatch<Layer[]>;
+}) {
+  const items = layers.map((layer) => (
+    <Reorder.Item
+      key={layer.id}
+      value={layer}
+      className="p-2 transition-colors hover:bg-brand-400/20 flex flex-row"
+    >
+      <div className="text-brand-100/50 mr-2">⋮⋮</div>
+      <div>{layer.plugin}</div>
+    </Reorder.Item>
   ));
 
   return (
     <div className="w-[20ch] bg-background ring-1 ring-brand-200 rounded-lg m-2 flex flex-col">
       <div className="p-2 bg-brand-100/10">Layers</div>
-      {layersDisplay}
+      <Reorder.Group
+        className="overflow-hidden"
+        values={layers}
+        onReorder={setLayers}
+      >
+        {items}
+      </Reorder.Group>
     </div>
   );
 }
@@ -147,7 +165,7 @@ export function ReacjinEditor() {
           />
         </div>
         <div className="absolute right-0 top-0">
-          <LayerPane layers={layers} />
+          <LayerPane layers={layers} setLayers={setLayers} />
         </div>
       </div>
     </div>

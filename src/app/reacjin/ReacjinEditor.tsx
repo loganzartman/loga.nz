@@ -6,6 +6,7 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {v4 as uuid} from 'uuid';
 
 import {Button} from '@/app/reacjin/Button';
+import {Panel} from '@/app/reacjin/Panel';
 import {PluginByID, pluginByID, PluginOptions} from '@/app/reacjin/plugins';
 import styles from '@/app/reacjin/styles.module.css';
 import {Toolbar} from '@/app/reacjin/Toolbar';
@@ -65,12 +66,16 @@ function ImageCanvas({
   );
 }
 
-function LayerPane({
+function LayerPanel({
   layers,
   setLayers,
+  selectedLayerID,
+  setSelectedLayerID,
 }: {
   layers: Layers;
   setLayers: React.Dispatch<React.SetStateAction<Layers>>;
+  selectedLayerID: string | null;
+  setSelectedLayerID: React.Dispatch<React.SetStateAction<string | null>>;
 }) {
   const handleDelete = useCallback(
     (targetId: string) => {
@@ -80,29 +85,35 @@ function LayerPane({
   );
 
   return (
-    <>
-      <div className="bg-background rounded-lg overflow-hidden shadow-black/50 shadow-xl">
-        <div className="w-[20ch] bg-brand-100/10 flex flex-col">
-          <div className="p-2 bg-brand-100/10">Layers</div>
-          <Reorder.Group
-            axis="y"
-            values={layers}
-            onReorder={setLayers}
-            className="flex-1 overflow-hidden flex flex-col"
-          >
-            {layers.map((layer) => (
-              <Reorder.Item key={layer.id} id={layer.id} value={layer}>
-                <div className="p-2 transition-colors hover:bg-brand-400/20 flex flex-row">
-                  <div className="text-brand-100/50 mr-2">⋮⋮</div>
-                  <div className="flex-1">{layer.pluginID as string}</div>
-                  <button onClick={() => handleDelete(layer.id)}>❌</button>
-                </div>
-              </Reorder.Item>
-            ))}
-          </Reorder.Group>
-        </div>
-      </div>
-    </>
+    <Panel title="Layers" className="w-[20ch]">
+      <Reorder.Group
+        axis="y"
+        values={layers}
+        onReorder={setLayers}
+        className="flex-1 overflow-hidden flex flex-col"
+      >
+        {layers.map((layer) => (
+          <Reorder.Item key={layer.id} id={layer.id} value={layer}>
+            <div
+              className={`p-2 transition-colors flex flex-row ${
+                layer.id === selectedLayerID
+                  ? 'bg-brand-400 text-background'
+                  : 'hover:bg-brand-400/20'
+              }`}
+            >
+              <div className="mr-2 text-opacity-50">⋮⋮</div>
+              <button
+                onClick={() => setSelectedLayerID(layer.id)}
+                className="flex-1"
+              >
+                {layer.pluginID as string}
+              </button>
+              <button onClick={() => handleDelete(layer.id)}>❌</button>
+            </div>
+          </Reorder.Item>
+        ))}
+      </Reorder.Group>
+    </Panel>
   );
 }
 
@@ -110,10 +121,15 @@ export function ReacjinEditor() {
   const [imageSize, setImageSize] = useState([256, 256]);
   const [zoom, setZoom] = useState(1);
   const [layers, setLayers] = useState<Layers>([
-    {id: uuid(), pluginID: 'text', options: {}},
+    {
+      id: uuid(),
+      pluginID: 'text',
+      options: {text: 'Hello, world!', font: '20px sans-serif'},
+    },
     {id: uuid(), pluginID: 'image', options: {}},
     {id: uuid(), pluginID: 'fill', options: {fillStyle: 'purple'}},
   ]);
+  const [selectedLayerID, setSelectedLayerID] = useState<string | null>(null);
 
   const setZoomToSize = useCallback(
     (size: number) => {
@@ -122,9 +138,22 @@ export function ReacjinEditor() {
     },
     [imageSize],
   );
-  const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
-  const selectedLayer =
-    selectedLayerId && layers.find((l) => l.id === selectedLayerId);
+
+  const handleSetOptions = useCallback(
+    (targetLayer: Layer<unknown>, options: unknown) => {
+      setLayers((layers) =>
+        layers.map((layer) =>
+          layer.id === targetLayer.id ? {...layer, options} : layer,
+        ),
+      );
+    },
+    [],
+  );
+
+  const selectedLayer = layers.find((layer) => layer.id === selectedLayerID);
+  const SelectedLayerUIPanel = selectedLayer
+    ? pluginByID(selectedLayer.pluginID).UIPanel
+    : null;
 
   return (
     <div className="absolute left-0 top-0 right-0 bottom-0 flex flex-col items-center">
@@ -159,8 +188,21 @@ export function ReacjinEditor() {
             layers={layers}
           />
         </div>
-        <div className="absolute right-8 top-8">
-          <LayerPane layers={layers} setLayers={setLayers} />
+        <div className="absolute right-8 top-8 flex flex-col items-end gap-4">
+          <LayerPanel
+            layers={layers}
+            setLayers={setLayers}
+            selectedLayerID={selectedLayerID}
+            setSelectedLayerID={setSelectedLayerID}
+          />
+          {SelectedLayerUIPanel && (
+            <SelectedLayerUIPanel
+              options={selectedLayer!.options}
+              setOptions={(options) =>
+                handleSetOptions(selectedLayer!, options)
+              }
+            />
+          )}
         </div>
       </div>
     </div>

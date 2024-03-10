@@ -6,6 +6,7 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {v4 as uuid} from 'uuid';
 
 import {Button} from '@/app/reacjin/Button';
+import {PluginByID, pluginByID, PluginOptions} from '@/app/reacjin/plugins';
 import styles from '@/app/reacjin/styles.module.css';
 import {Toolbar} from '@/app/reacjin/Toolbar';
 
@@ -14,60 +15,6 @@ const workSans = Work_Sans({weight: 'variable', preload: false});
 const overpass = Overpass({weight: 'variable', preload: false});
 
 const fonts = [nunito, overpass, workSans];
-
-const image = new Image();
-image.src =
-  'https://i.natgeofe.com/n/4cebbf38-5df4-4ed0-864a-4ebeb64d33a4/NationalGeographic_1468962_4x3.jpg?w=256&h=256';
-
-interface LayerPlugin<Options> {
-  draw(ctx: CanvasRenderingContext2D, options: Options): void;
-  UIPanel?: React.Component<{options: Options}>;
-}
-
-const imageLayerPlugin: LayerPlugin<{}> = {
-  draw: (ctx, options) => {
-    ctx.drawImage(image, 0, 0);
-  },
-};
-
-const textLayerPlugin: LayerPlugin<{}> = {
-  draw: (ctx, options) => {
-    ctx.fillStyle = 'black';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('Test', ctx.canvas.width / 2, ctx.canvas.height / 2);
-  },
-};
-
-const fillLayerPlugin: LayerPlugin<{
-  fillStyle: CanvasFillStrokeStyles['fillStyle'];
-}> = {
-  draw: (ctx, options) => {
-    ctx.fillStyle = options.fillStyle;
-    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-  },
-};
-
-const layerPlugins = {
-  fill: fillLayerPlugin,
-  image: imageLayerPlugin,
-  text: textLayerPlugin,
-} as const;
-
-type PluginOptions<P> = P extends LayerPlugin<infer Options>
-  ? Options
-  : unknown;
-
-type PluginByID<ID> = ID extends keyof typeof layerPlugins
-  ? (typeof layerPlugins)[ID]
-  : LayerPlugin<unknown>;
-
-function pluginByID<ID>(id: ID): PluginByID<ID> {
-  for (const [pluginID, plugin] of Object.entries(layerPlugins)) {
-    if (pluginID === id) return plugin as PluginByID<ID>;
-  }
-  throw new Error(`Unknown plugin ${id}`);
-}
 
 type Layer<PluginID> = {
   id: string;
@@ -175,6 +122,9 @@ export function ReacjinEditor() {
     },
     [imageSize],
   );
+  const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
+  const selectedLayer =
+    selectedLayerId && layers.find((l) => l.id === selectedLayerId);
 
   return (
     <div className="absolute left-0 top-0 right-0 bottom-0 flex flex-col items-center">

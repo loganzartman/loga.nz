@@ -15,24 +15,23 @@ const overpass = Overpass({weight: 'variable', preload: false});
 
 const fonts = [nunito, overpass, workSans];
 
-type RenderFunction<O> = (ctx: CanvasRenderingContext2D, options: O) => void;
-
-type LayerPlugin<N, O> = {name: N; render: RenderFunction<O>};
-
 const image = new Image();
 image.src =
   'https://i.natgeofe.com/n/4cebbf38-5df4-4ed0-864a-4ebeb64d33a4/NationalGeographic_1468962_4x3.jpg?w=256&h=256';
 
-const imageLayerPlugin: LayerPlugin<'image', {}> = {
-  name: 'image',
-  render: (ctx, options) => {
+interface LayerPlugin<Options> {
+  draw(ctx: CanvasRenderingContext2D, options: Options): void;
+  UIPanel?: React.Component<{options: Options}>;
+}
+
+const imageLayerPlugin: LayerPlugin<{}> = {
+  draw: (ctx, options) => {
     ctx.drawImage(image, 0, 0);
   },
 };
 
-const textLayerPlugin: LayerPlugin<'text', {}> = {
-  name: 'text',
-  render: (ctx, options) => {
+const textLayerPlugin: LayerPlugin<{}> = {
+  draw: (ctx, options) => {
     ctx.fillStyle = 'black';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -40,12 +39,10 @@ const textLayerPlugin: LayerPlugin<'text', {}> = {
   },
 };
 
-const fillLayerPlugin: LayerPlugin<
-  'fill',
-  {fillStyle: CanvasFillStrokeStyles['fillStyle']}
-> = {
-  name: 'fill',
-  render: (ctx, options) => {
+const fillLayerPlugin: LayerPlugin<{
+  fillStyle: CanvasFillStrokeStyles['fillStyle'];
+}> = {
+  draw: (ctx, options) => {
     ctx.fillStyle = options.fillStyle;
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   },
@@ -57,12 +54,25 @@ const layerPlugins = {
   text: textLayerPlugin,
 } as const;
 
-type LayerPlugins = typeof layerPlugins;
+type PluginOptions<P> = P extends LayerPlugin<infer Options>
+  ? Options
+  : unknown;
 
-type Layer<P extends keyof LayerPlugins> = {
+type PluginByID<ID> = ID extends keyof typeof layerPlugins
+  ? (typeof layerPlugins)[ID]
+  : LayerPlugin<unknown>;
+
+function pluginByID<ID>(id: ID): PluginByID<ID> {
+  for (const [pluginID, plugin] of Object.entries(layerPlugins)) {
+    if (pluginID === id) return plugin as PluginByID<ID>;
+  }
+  throw new Error(`Unknown plugin ${id}`);
+}
+
+type Layer<PluginID> = {
   id: string;
-  plugin: P;
-  options: LayerPlugins[P];
+  pluginID: PluginID;
+  options: PluginOptions<PluginByID<PluginID>>;
 };
 
 type Layers = Layer<unknown>[];
@@ -87,8 +97,8 @@ function ImageCanvas({
 
     for (let i = layers.length - 1; i >= 0; --i) {
       const layer = layers[i];
-      const plugin = layerPlugins[layer.plugin];
-      plugin.render(ctx, layer.options);
+      const plugin = pluginByID(layer.pluginID);
+      plugin.draw(ctx, layer.options);
     }
   }, [layers]);
 
@@ -124,8 +134,8 @@ function LayerPane({
 
   return (
     <>
-      <div className="bg-background rounded-lg">
-        <div className="w-[20ch] bg-brand-100/10 rounded-lg flex flex-col overflow-hidden">
+      <div className="bg-background rounded-lg overflow-hidden shadow-black/50 shadow-xl">
+        <div className="w-[20ch] bg-brand-100/10 flex flex-col">
           <div className="p-2 bg-brand-100/10">Layers</div>
           <Reorder.Group
             axis="y"
@@ -137,7 +147,7 @@ function LayerPane({
               <Reorder.Item key={layer.id} id={layer.id} value={layer}>
                 <div className="p-2 transition-colors hover:bg-brand-400/20 flex flex-row">
                   <div className="text-brand-100/50 mr-2">⋮⋮</div>
-                  <div className="flex-1">{layer.plugin}</div>
+                  <div className="flex-1">{layer.pluginID as string}</div>
                   <button onClick={() => handleDelete(layer.id)}>❌</button>
                 </div>
               </Reorder.Item>
@@ -153,9 +163,9 @@ export function ReacjinEditor() {
   const [imageSize, setImageSize] = useState([256, 256]);
   const [zoom, setZoom] = useState(1);
   const [layers, setLayers] = useState<Layers>([
-    {id: uuid(), plugin: 'text', options: {}},
-    {id: uuid(), plugin: 'image', options: {}},
-    {id: uuid(), plugin: 'fill', options: {fillStyle: 'purple'}},
+    {id: uuid(), pluginID: 'text', options: {}},
+    {id: uuid(), pluginID: 'image', options: {}},
+    {id: uuid(), pluginID: 'fill', options: {fillStyle: 'purple'}},
   ]);
 
   const setZoomToSize = useCallback(

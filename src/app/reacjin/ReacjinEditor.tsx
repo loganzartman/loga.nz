@@ -6,6 +6,7 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 
 import {Button} from '@/app/reacjin/Button';
 import styles from '@/app/reacjin/styles.module.css';
+import {Toolbar} from '@/app/reacjin/Toolbar';
 
 const nunito = Nunito({weight: 'variable', preload: false});
 const workSans = Work_Sans({weight: 'variable', preload: false});
@@ -47,7 +48,11 @@ const layerPlugins = {
   text: textLayerPlugin,
 } as const;
 
-type Layer = {id: string; plugin: keyof typeof layerPlugins; options: unknown};
+type Layer = {
+  id: string;
+  plugin: keyof typeof layerPlugins;
+  options: unknown;
+};
 
 function ImageCanvas({
   width,
@@ -66,13 +71,14 @@ function ImageCanvas({
     if (!canvasRef.current) return;
     const ctx = canvasRef.current.getContext('2d')!;
 
-    for (const layer of layers) {
+    for (let i = layers.length - 1; i >= 0; --i) {
+      const layer = layers[i];
       layerPlugins[layer.plugin].render(ctx, {});
     }
   }, [layers]);
 
   return (
-    <div className="p-1 shadow-lg rounded-md ring-1 ring-[rgba(255,255,255,0.5)]">
+    <div className="p-2 shadow-lg rounded-md ring-1 ring-brand-100/20">
       <canvas
         ref={canvasRef}
         className={`${styles.checkerBackground}`}
@@ -106,15 +112,17 @@ function LayerPane({
   ));
 
   return (
-    <div className="w-[20ch] bg-background ring-1 ring-brand-200 rounded-lg m-2 flex flex-col">
-      <div className="p-2 bg-brand-100/10">Layers</div>
-      <Reorder.Group
-        className="overflow-hidden"
-        values={layers}
-        onReorder={setLayers}
-      >
-        {items}
-      </Reorder.Group>
+    <div className="bg-background rounded-lg">
+      <div className="w-[20ch] bg-brand-100/10 flex flex-col rounded-lg overflow-auto">
+        <div className="p-2 bg-brand-100/10">Layers</div>
+        <Reorder.Group
+          className="overflow-hidden"
+          values={layers}
+          onReorder={setLayers}
+        >
+          {items}
+        </Reorder.Group>
+      </div>
     </div>
   );
 }
@@ -123,8 +131,8 @@ export function ReacjinEditor() {
   const [imageSize, setImageSize] = useState([256, 256]);
   const [zoom, setZoom] = useState(1);
   const [layers, setLayers] = useState<Layer[]>([
-    {id: '0', plugin: 'image', options: {}},
-    {id: '1', plugin: 'text', options: {}},
+    {id: '0', plugin: 'text', options: {}},
+    {id: '1', plugin: 'image', options: {}},
   ]);
 
   const setZoomToSize = useCallback(
@@ -137,23 +145,27 @@ export function ReacjinEditor() {
 
   return (
     <div className="absolute left-0 top-0 right-0 bottom-0 flex flex-col items-center">
-      <div className="text-2xl" title="rē-ˈak-shən">
-        reacjin
+      <div className="flex flex-row items-center">
+        <div className="text-2xl mr-2" title="rē-ˈak-shən">
+          reacjin
+        </div>
+        <div>simple reacji editor</div>
       </div>
       <div className="flex flex-row gap-2 items-center p-2">
-        <div>zoom</div>
-        <input
-          type="range"
-          min={1}
-          max={400}
-          step={1}
-          value={zoom * 100}
-          onChange={(e) => setZoom(Number.parseFloat(e.target.value) / 100)}
-        />
-        <div className="w-[5ch]">{(zoom * 100).toFixed(0)}%</div>
-        <Button onClick={() => setZoomToSize(16)}>Reaction</Button>
-        <Button onClick={() => setZoomToSize(64)}>Hover</Button>
-        <Button onClick={() => setZoom(1)}>100%</Button>
+        <Toolbar label="zoom">
+          <input
+            type="range"
+            min={1}
+            max={400}
+            step={1}
+            value={zoom * 100}
+            onChange={(e) => setZoom(Number.parseFloat(e.target.value) / 100)}
+          />
+          <div className="w-[5ch]">{(zoom * 100).toFixed(0)}%</div>
+          <Button onClick={() => setZoomToSize(16)}>Reaction</Button>
+          <Button onClick={() => setZoomToSize(64)}>Hover</Button>
+          <Button onClick={() => setZoom(1)}>100%</Button>
+        </Toolbar>
       </div>
       <div className="relative w-full h-full flex-1">
         <div className="absolute left-0 top-0 right-0 bottom-0 overflow-auto flex flex-col items-center justify-center">
@@ -164,7 +176,7 @@ export function ReacjinEditor() {
             layers={layers}
           />
         </div>
-        <div className="absolute right-0 top-0">
+        <div className="absolute right-8 bottom-8">
           <LayerPane layers={layers} setLayers={setLayers} />
         </div>
       </div>

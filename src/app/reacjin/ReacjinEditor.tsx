@@ -125,26 +125,24 @@ function LayerPane({
   return (
     <>
       <div className="bg-background rounded-lg">
-        <div className="w-[20ch] bg-brand-100/10 rounded-lg flex flex-col">
+        <div className="w-[20ch] bg-brand-100/10 rounded-lg flex flex-col overflow-hidden">
           <div className="p-2 bg-brand-100/10">Layers</div>
-          <div className="flex-1 overflow-hidden">
-            <Reorder.Group
-              axis="y"
-              values={layers}
-              onReorder={setLayers}
-              className="flex flex-col gap-1"
-            >
-              {layers.map((layer) => (
-                <Reorder.Item key={layer.id} id={layer.id} value={layer}>
-                  <div className="p-2 transition-colors hover:bg-brand-400/20 flex flex-row">
-                    <div className="text-brand-100/50 mr-2">⋮⋮</div>
-                    <div className="flex-1">{layer.plugin}</div>
-                    <button onClick={() => handleDelete(layer.id)}>❌</button>
-                  </div>
-                </Reorder.Item>
-              ))}
-            </Reorder.Group>
-          </div>
+          <Reorder.Group
+            axis="y"
+            values={layers}
+            onReorder={setLayers}
+            className="flex-1 overflow-hidden flex flex-col"
+          >
+            {layers.map((layer) => (
+              <Reorder.Item key={layer.id} id={layer.id} value={layer}>
+                <div className="p-2 transition-colors hover:bg-brand-400/20 flex flex-row">
+                  <div className="text-brand-100/50 mr-2">⋮⋮</div>
+                  <div className="flex-1">{layer.plugin}</div>
+                  <button onClick={() => handleDelete(layer.id)}>❌</button>
+                </div>
+              </Reorder.Item>
+            ))}
+          </Reorder.Group>
         </div>
       </div>
     </>

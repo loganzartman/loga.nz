@@ -3,6 +3,7 @@
 import {Reorder} from 'framer-motion';
 import {Nunito, Overpass, Work_Sans} from 'next/font/google';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {v4 as uuid} from 'uuid';
 
 import {Button} from '@/app/reacjin/Button';
 import styles from '@/app/reacjin/styles.module.css';
@@ -13,10 +14,6 @@ const workSans = Work_Sans({weight: 'variable', preload: false});
 const overpass = Overpass({weight: 'variable', preload: false});
 
 const fonts = [nunito, overpass, workSans];
-
-function uuid() {
-  return window.crypto.randomUUID();
-}
 
 type RenderFunction<O> = (ctx: CanvasRenderingContext2D, options: O) => void;
 
@@ -43,16 +40,32 @@ const textLayerPlugin: LayerPlugin<'text', {}> = {
   },
 };
 
+const fillLayerPlugin: LayerPlugin<
+  'fill',
+  {fillStyle: CanvasFillStrokeStyles['fillStyle']}
+> = {
+  name: 'fill',
+  render: (ctx, options) => {
+    ctx.fillStyle = options.fillStyle;
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  },
+};
+
 const layerPlugins = {
+  fill: fillLayerPlugin,
   image: imageLayerPlugin,
   text: textLayerPlugin,
 } as const;
 
-type Layer = {
+type LayerPlugins = typeof layerPlugins;
+
+type Layer<P extends keyof LayerPlugins> = {
   id: string;
-  plugin: keyof typeof layerPlugins;
-  options: unknown;
+  plugin: P;
+  options: LayerPlugins[P];
 };
+
+type Layers = Layer<unknown>[];
 
 function ImageCanvas({
   width,
@@ -63,17 +76,19 @@ function ImageCanvas({
   width: number;
   height: number;
   zoom: number;
-  layers: Layer[];
+  layers: Layers;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     if (!canvasRef.current) return;
     const ctx = canvasRef.current.getContext('2d')!;
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     for (let i = layers.length - 1; i >= 0; --i) {
       const layer = layers[i];
-      layerPlugins[layer.plugin].render(ctx, {});
+      const plugin = layerPlugins[layer.plugin];
+      plugin.render(ctx, layer.options);
     }
   }, [layers]);
 
@@ -97,42 +112,52 @@ function LayerPane({
   layers,
   setLayers,
 }: {
-  layers: Layer[];
-  setLayers: React.Dispatch<Layer[]>;
+  layers: Layers;
+  setLayers: React.Dispatch<React.SetStateAction<Layers>>;
 }) {
-  const items = layers.map((layer) => (
-    <Reorder.Item
-      key={layer.id}
-      value={layer}
-      className="p-2 transition-colors hover:bg-brand-400/20 flex flex-row"
-    >
-      <div className="text-brand-100/50 mr-2">⋮⋮</div>
-      <div>{layer.plugin}</div>
-    </Reorder.Item>
-  ));
+  const handleDelete = useCallback(
+    (targetId: string) => {
+      setLayers((layers) => layers.filter(({id}) => id !== targetId));
+    },
+    [setLayers],
+  );
 
   return (
-    <div className="bg-background rounded-lg">
-      <div className="w-[20ch] bg-brand-100/10 flex flex-col rounded-lg overflow-auto">
-        <div className="p-2 bg-brand-100/10">Layers</div>
-        <Reorder.Group
-          className="overflow-hidden"
-          values={layers}
-          onReorder={setLayers}
-        >
-          {items}
-        </Reorder.Group>
+    <>
+      <div className="bg-background rounded-lg">
+        <div className="w-[20ch] bg-brand-100/10 rounded-lg flex flex-col">
+          <div className="p-2 bg-brand-100/10">Layers</div>
+          <div className="flex-1 overflow-hidden">
+            <Reorder.Group
+              axis="y"
+              values={layers}
+              onReorder={setLayers}
+              className="flex flex-col gap-1"
+            >
+              {layers.map((layer) => (
+                <Reorder.Item key={layer.id} id={layer.id} value={layer}>
+                  <div className="p-2 transition-colors hover:bg-brand-400/20 flex flex-row">
+                    <div className="text-brand-100/50 mr-2">⋮⋮</div>
+                    <div className="flex-1">{layer.plugin}</div>
+                    <button onClick={() => handleDelete(layer.id)}>❌</button>
+                  </div>
+                </Reorder.Item>
+              ))}
+            </Reorder.Group>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
 export function ReacjinEditor() {
   const [imageSize, setImageSize] = useState([256, 256]);
   const [zoom, setZoom] = useState(1);
-  const [layers, setLayers] = useState<Layer[]>([
-    {id: '0', plugin: 'text', options: {}},
-    {id: '1', plugin: 'image', options: {}},
+  const [layers, setLayers] = useState<Layers>([
+    {id: uuid(), plugin: 'text', options: {}},
+    {id: uuid(), plugin: 'image', options: {}},
+    {id: uuid(), plugin: 'fill', options: {fillStyle: 'purple'}},
   ]);
 
   const setZoomToSize = useCallback(
@@ -176,7 +201,7 @@ export function ReacjinEditor() {
             layers={layers}
           />
         </div>
-        <div className="absolute right-8 bottom-8">
+        <div className="absolute right-8 top-8">
           <LayerPane layers={layers} setLayers={setLayers} />
         </div>
       </div>

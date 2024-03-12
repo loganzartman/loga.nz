@@ -1,6 +1,8 @@
+import {drawStyledText} from 'canvas-styled-text';
 import React from 'react';
 
 import {Panel} from '@/app/reacjin/Panel';
+import {PanelRow} from '@/app/reacjin/PanelRow';
 
 export interface LayerPlugin<Options> {
   draw(ctx: CanvasRenderingContext2D, options: Options): void;
@@ -20,22 +22,37 @@ const imageLayerPlugin: LayerPlugin<{}> = {
   },
 };
 
-const textLayerPlugin: LayerPlugin<{text: string; font: string}> = {
+const textLayerPlugin: LayerPlugin<{
+  text: string;
+  fontSize: string;
+  autoFitText: boolean;
+  fontFamily: string;
+  fillStyle: string;
+  strokeStyle: string;
+  strokeWidth: number;
+  textAlign: CanvasTextAlign;
+}> = {
   draw: (ctx, options) => {
-    ctx.fillStyle = 'black';
-    ctx.textAlign = 'center';
+    ctx.fillStyle = options.fillStyle;
+    ctx.strokeStyle = options.strokeStyle;
+    ctx.lineWidth = options.strokeWidth;
+    ctx.lineJoin = 'round';
+    ctx.font = `${options.fontSize} ${options.fontFamily}`;
+    ctx.textAlign = options.textAlign;
     ctx.textBaseline = 'middle';
-    ctx.font = options.font;
-    ctx.fillText(options.text, ctx.canvas.width / 2, ctx.canvas.height / 2);
+    drawStyledText(
+      ctx,
+      options.text,
+      ctx.canvas.width / 2,
+      ctx.canvas.height / 2,
+    );
   },
   UIPanel: ({options, setOptions}) => {
     return (
-      <Panel title="Text">
+      <Panel title="Settings: Text">
         <div className="flex flex-col gap-2 p-2">
-          <div className="flex flex-row gap-2">
-            <div>Text</div>
-            <input
-              type="text"
+          <PanelRow label="text">
+            <textarea
               value={options.text}
               onChange={(e) =>
                 setOptions({
@@ -44,20 +61,95 @@ const textLayerPlugin: LayerPlugin<{text: string; font: string}> = {
                 })
               }
             />
-          </div>
-          <div className="flex flex-row gap-2">
-            <div>Font</div>
+          </PanelRow>
+          <PanelRow label="font size">
             <input
+              className={options.autoFitText ? 'disabled' : ''}
               type="text"
-              value={options.font}
+              value={options.fontSize}
               onChange={(e) =>
                 setOptions({
                   ...options,
-                  font: e.currentTarget.value,
+                  fontSize: e.currentTarget.value,
                 })
               }
             />
-          </div>
+          </PanelRow>
+          <PanelRow label="auto-fit text">
+            <input
+              type="checkbox"
+              checked={options.autoFitText}
+              onChange={(e) =>
+                setOptions({
+                  ...options,
+                  autoFitText: e.currentTarget.checked,
+                })
+              }
+            />
+          </PanelRow>
+          <PanelRow label="font family">
+            <input
+              type="text"
+              value={options.fontFamily}
+              onChange={(e) =>
+                setOptions({
+                  ...options,
+                  fontFamily: e.currentTarget.value,
+                })
+              }
+            />
+          </PanelRow>
+          <PanelRow label="fill style">
+            <input
+              type="text"
+              value={options.fillStyle}
+              onChange={(e) =>
+                setOptions({
+                  ...options,
+                  fillStyle: e.currentTarget.value,
+                })
+              }
+            />
+          </PanelRow>
+          <PanelRow label="stroke style">
+            <input
+              type="text"
+              value={options.strokeStyle}
+              onChange={(e) =>
+                setOptions({
+                  ...options,
+                  strokeStyle: e.currentTarget.value,
+                })
+              }
+            />
+          </PanelRow>
+          <PanelRow label="stroke width">
+            <input
+              type="number"
+              value={options.strokeWidth}
+              onChange={(e) =>
+                setOptions({
+                  ...options,
+                  strokeWidth: parseInt(e.currentTarget.value),
+                })
+              }
+            />
+          </PanelRow>
+          <PanelRow label="text align">
+            <select
+              value={options.textAlign}
+              onChange={(e) =>
+                setOptions({
+                  ...options,
+                  textAlign: e.currentTarget.value as CanvasTextAlign,
+                })
+              }
+            >
+              <option value="left">left</option>
+              <option value="right">right</option>
+              <option value="center">center</option>
+            </select>
+          </PanelRow>
         </div>
       </Panel>
     );

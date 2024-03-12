@@ -6,6 +6,7 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {v4 as uuid} from 'uuid';
 
 import {Button} from '@/app/reacjin/Button';
+import {ComboRange} from '@/app/reacjin/ComboRange';
 import {Panel} from '@/app/reacjin/Panel';
 import {PluginByID, pluginByID, PluginOptions} from '@/app/reacjin/plugins';
 import styles from '@/app/reacjin/styles.module.css';
@@ -51,7 +52,7 @@ function ImageCanvas({
   }, [layers]);
 
   return (
-    <div className="p-2 shadow-lg rounded-md ring-1 ring-brand-100/20">
+    <div className={`p-2 shadow-lg rounded-md ring-1 ring-brand-100/20`}>
       <canvas
         ref={canvasRef}
         className={`${styles.checkerBackground}`}
@@ -124,7 +125,16 @@ export function ReacjinEditor() {
     {
       id: uuid(),
       pluginID: 'text',
-      options: {text: 'Hello, world!', font: '20px sans-serif'},
+      options: {
+        text: 'Hello, world!',
+        fontSize: '20px',
+        fontFamily: 'sans-serif',
+        color: 'black',
+        fillStyle: 'white',
+        strokeStyle: 'black',
+        strokeWidth: 2,
+        textAlign: 'center',
+      },
     },
     {id: uuid(), pluginID: 'image', options: {}},
     {id: uuid(), pluginID: 'fill', options: {fillStyle: 'purple'}},
@@ -165,15 +175,13 @@ export function ReacjinEditor() {
       </div>
       <div className="flex flex-row gap-2 items-center p-2">
         <Toolbar label="zoom">
-          <input
-            type="range"
+          <ComboRange
             min={1}
             max={400}
             step={1}
             value={zoom * 100}
-            onChange={(e) => setZoom(Number.parseFloat(e.target.value) / 100)}
+            onChange={(value) => setZoom(value / 100)}
           />
-          <div className="w-[5ch]">{(zoom * 100).toFixed(0)}%</div>
           <Button onClick={() => setZoomToSize(16)}>Reaction</Button>
           <Button onClick={() => setZoomToSize(64)}>Hover</Button>
           <Button onClick={() => setZoom(1)}>100%</Button>
@@ -181,12 +189,14 @@ export function ReacjinEditor() {
       </div>
       <div className="relative w-full h-full flex-1">
         <div className="absolute left-0 top-0 right-0 bottom-0 overflow-auto flex flex-col items-center justify-center">
-          <ImageCanvas
-            width={imageSize[0]}
-            height={imageSize[1]}
-            zoom={zoom}
-            layers={layers}
-          />
+          <div className="flex items-center justify-center">
+            <ImageCanvas
+              width={imageSize[0]}
+              height={imageSize[1]}
+              zoom={zoom}
+              layers={layers}
+            />
+          </div>
         </div>
         <div className="absolute right-8 top-8 flex flex-col items-end gap-4">
           <LayerPanel

@@ -1,4 +1,9 @@
-import {drawStyledText} from 'canvas-styled-text';
+import {
+  drawStyledText,
+  measureStyledText,
+  StyledText,
+  StyledTextStyle,
+} from 'canvas-styled-text';
 import React from 'react';
 
 import {Panel} from '@/app/reacjin/Panel';
@@ -7,6 +12,7 @@ import {PanelRow} from '@/app/reacjin/PanelRow';
 export interface LayerPlugin<Options> {
   draw(ctx: CanvasRenderingContext2D, options: Options): void;
   UIPanel?: React.FC<{
+    ctx: CanvasRenderingContext2D;
     options: Options;
     setOptions: (options: Options) => void;
   }>;
@@ -22,32 +28,103 @@ const imageLayerPlugin: LayerPlugin<{}> = {
   },
 };
 
-const textLayerPlugin: LayerPlugin<{
+export type TextLayerOptions = {
   text: string;
-  fontSize: string;
   autoFitText: boolean;
+  fontSize: number;
   fontFamily: string;
   fillStyle: string;
   strokeStyle: string;
   strokeWidth: number;
   textAlign: CanvasTextAlign;
-}> = {
+};
+
+function getBestFitFontSize(
+  ctx: CanvasRenderingContext2D,
+  text: StyledText,
+  baseStyle: StyledTextStyle,
+  fontFamily: string,
+  fontSize: number,
+  desiredWidth: number,
+  maxSteps: number = 8,
+  minSize: number = 8,
+  maxSize: number = ctx.canvas.width,
+): number {
+  console.log(fontSize, maxSteps);
+  if (maxSteps <= 0) return fontSize;
+  const metrics = measureStyledText(ctx, text, {
+    ...baseStyle,
+    font: `${fontSize.toFixed(1)}px ${fontFamily}`,
+  });
+  const width = metrics.width;
+  if (width < desiredWidth)
+    return getBestFitFontSize(
+      ctx,
+      text,
+      baseStyle,
+      fontFamily,
+      fontSize + (maxSize - fontSize) * 0.5,
+      desiredWidth,
+      maxSteps - 1,
+      fontSize,
+      maxSize,
+    );
+  else
+    return getBestFitFontSize(
+      ctx,
+      text,
+      baseStyle,
+      fontFamily,
+      fontSize + (minSize - fontSize) * 0.5,
+      desiredWidth,
+      maxSteps - 1,
+      minSize,
+      fontSize,
+    );
+}
+
+const getStyle = (options: TextLayerOptions): StyledTextStyle => ({
+  font: `${options.fontSize}px ${options.fontFamily}`,
+  fill: options.fillStyle,
+  stroke: options.strokeStyle,
+  strokeWidth: options.strokeWidth,
+  align: options.textAlign,
+  baseline: 'middle',
+});
+
+const textLayerPlugin: LayerPlugin<TextLayerOptions> = {
   draw: (ctx, options) => {
-    ctx.fillStyle = options.fillStyle;
-    ctx.strokeStyle = options.strokeStyle;
-    ctx.lineWidth = options.strokeWidth;
+    const baseStyle = getStyle(options);
     ctx.lineJoin = 'round';
-    ctx.font = `${options.fontSize} ${options.fontFamily}`;
-    ctx.textAlign = options.textAlign;
-    ctx.textBaseline = 'middle';
     drawStyledText(
       ctx,
       options.text,
       ctx.canvas.width / 2,
       ctx.canvas.height / 2,
+      baseStyle,
     );
   },
-  UIPanel: ({options, setOptions}) => {
+  UIPanel: ({ctx, options, setOptions}) => {
+    if (options.autoFitText) {
+      const baseStyle = getStyle(options);
+      const fontSize = Math.round(
+        getBestFitFontSize(
+          ctx,
+          options.text,
+          baseStyle,
+          options.fontFamily,
+          50,
+          ctx.canvas.width,
+        ),
+      );
+      if (fontSize !== options.fontSize) {
+        setOptions({
+          ...options,
+          fontSize,
+        });
+      }
+    }
+
     return (
       <Panel title="Settings: Text">
         <div className="flex flex-col gap-2 p-2">
@@ -62,19 +139,6 @@ const textLayerPlugin: LayerPlugin<{
               }
             />
           </PanelRow>
-          <PanelRow label="font size">
-            <input
-              className={options.autoFitText ? 'disabled' : ''}
-              type="text"
-              value={options.fontSize}
-              onChange={(e) =>
-                setOptions({
-                  ...options,
-                  fontSize: e.currentTarget.value,
-                })
-              }
-            />
-          </PanelRow>
           <PanelRow label="auto-fit text">
             <input
               type="checkbox"
@@ -83,6 +147,19 @@ const textLayerPlugin: LayerPlugin<{
                 setOptions({
                   ...options,
                   autoFitText: e.currentTarget.checked,
+                })
+              }
+            />
+          </PanelRow>
+          <PanelRow label="font size">
+            <input
+              className={options.autoFitText ? 'disabled' : ''}
+              type="text"
+              value={options.fontSize}
+              onChange={(e) =>
+                setOptions({
+                  ...options,
+                  fontSize: e.currentTarget.valueAsNumber,
                 })
               }
             />

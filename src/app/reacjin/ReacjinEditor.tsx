@@ -2,13 +2,24 @@
 
 import {Reorder} from 'framer-motion';
 import {Nunito, Overpass, Work_Sans} from 'next/font/google';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import {v4 as uuid} from 'uuid';
 
 import {Button} from '@/app/reacjin/Button';
 import {ComboRange} from '@/app/reacjin/ComboRange';
 import {Panel} from '@/app/reacjin/Panel';
-import {PluginByID, pluginByID, PluginOptions} from '@/app/reacjin/plugins';
+import {
+  PluginByID,
+  pluginByID,
+  PluginOptions,
+  TextLayerOptions,
+} from '@/app/reacjin/plugins';
 import styles from '@/app/reacjin/styles.module.css';
 import {Toolbar} from '@/app/reacjin/Toolbar';
 
@@ -26,46 +37,54 @@ type Layer<PluginID> = {
 
 type Layers = Layer<unknown>[];
 
-function ImageCanvas({
-  width,
-  height,
-  zoom,
-  layers,
-}: {
-  width: number;
-  height: number;
-  zoom: number;
-  layers: Layers;
-}) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+const ImageCanvas = React.forwardRef(
+  (
+    {
+      width,
+      height,
+      zoom,
+      layers,
+    }: {
+      width: number;
+      height: number;
+      zoom: number;
+      layers: Layers;
+    },
+    ref,
+  ) => {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  useEffect(() => {
-    if (!canvasRef.current) return;
-    const ctx = canvasRef.current.getContext('2d')!;
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    useImperativeHandle(ref, () => canvasRef.current);
 
-    for (let i = layers.length - 1; i >= 0; --i) {
-      const layer = layers[i];
-      const plugin = pluginByID(layer.pluginID);
-      plugin.draw(ctx, layer.options);
-    }
-  }, [layers]);
+    useEffect(() => {
+      if (!canvasRef.current) return;
+      const ctx = canvasRef.current.getContext('2d')!;
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
-  return (
-    <div className={`p-2 shadow-lg rounded-md ring-1 ring-brand-100/20`}>
-      <canvas
-        ref={canvasRef}
-        className={`${styles.checkerBackground}`}
-        style={{
-          width: `${(width * zoom).toFixed(0)}px`,
-          height: `${(height * zoom).toFixed(0)}px`,
-        }}
-        width={width}
-        height={height}
-      ></canvas>
-    </div>
-  );
-}
+      for (let i = layers.length - 1; i >= 0; --i) {
+        const layer = layers[i];
+        const plugin = pluginByID(layer.pluginID);
+        plugin.draw(ctx, layer.options);
+      }
+    }, [layers]);
+
+    return (
+      <div className={`p-2 shadow-lg rounded-md ring-1 ring-brand-100/20`}>
+        <canvas
+          ref={canvasRef}
+          className={`${styles.checkerBackground}`}
+          style={{
+            width: `${(width * zoom).toFixed(0)}px`,
+            height: `${(height * zoom).toFixed(0)}px`,
+          }}
+          width={width}
+          height={height}
+        ></canvas>
+      </div>
+    );
+  },
+);
+ImageCanvas.displayName = 'ImageCanvas';
 
 function LayerPanel({
   layers,
@@ -119,6 +138,7 @@ function LayerPanel({
 }
 
 export function ReacjinEditor() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [imageSize, setImageSize] = useState([256, 256]);
   const [zoom, setZoom] = useState(1);
   const [layers, setLayers] = useState<Layers>([
@@ -127,14 +147,14 @@ export function ReacjinEditor() {
       pluginID: 'text',
       options: {
         text: 'Hello, world!',
-        fontSize: '20px',
+        autoFitText: false,
+        fontSize: 32,
         fontFamily: 'sans-serif',
-        color: 'black',
         fillStyle: 'white',
         strokeStyle: 'black',
         strokeWidth: 2,
         textAlign: 'center',
-      },
+      } satisfies TextLayerOptions,
     },
     {id: uuid(), pluginID: 'image', options: {}},
     {id: uuid(), pluginID: 'fill', options: {fillStyle: 'purple'}},
@@ -191,6 +211,7 @@ export function ReacjinEditor() {
         <div className="absolute left-0 top-0 right-0 bottom-0 overflow-auto flex flex-col items-center justify-center">
           <div className="flex items-center justify-center">
             <ImageCanvas
+              ref={canvasRef}
               width={imageSize[0]}
               height={imageSize[1]}
               zoom={zoom}
@@ -207,6 +228,7 @@ export function ReacjinEditor() {
           />
           {SelectedLayerUIPanel && (
             <SelectedLayerUIPanel
+              ctx={canvasRef.current?.getContext('2d')!}
               options={selectedLayer!.options}
               setOptions={(options) =>
                 handleSetOptions(selectedLayer!, options)

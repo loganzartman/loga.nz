@@ -9,7 +9,12 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import {MdOutlineFileDownload} from 'react-icons/md';
+import {
+  MdDeleteForever,
+  MdOutlineClose,
+  MdOutlineDragIndicator,
+  MdOutlineFileDownload,
+} from 'react-icons/md';
 import {v4 as uuid} from 'uuid';
 
 import {Button} from '@/app/reacjin/Button';
@@ -117,20 +122,24 @@ function LayerPanel({
         {layers.map((layer) => (
           <Reorder.Item key={layer.id} id={layer.id} value={layer}>
             <div
-              className={`p-2 transition-colors flex flex-row ${
+              className={`p-2 transition-colors flex flex-row items-center ${
                 layer.id === selectedLayerID
                   ? 'bg-brand-400 text-background'
                   : 'hover:bg-brand-400/20'
               }`}
             >
-              <div className="mr-2 text-opacity-50">⋮⋮</div>
+              <div className="text-opacity-50">
+                <MdOutlineDragIndicator />
+              </div>
               <button
                 onClick={() => setSelectedLayerID(layer.id)}
                 className="flex-1"
               >
                 {layer.pluginID as string}
               </button>
-              <button onClick={() => handleDelete(layer.id)}>❌</button>
+              <button onClick={() => handleDelete(layer.id)}>
+                <MdDeleteForever className="text-red-400" />
+              </button>
             </div>
           </Reorder.Item>
         ))}
@@ -193,9 +202,10 @@ export function ReacjinEditor() {
   }, []);
 
   const selectedLayer = layers.find((layer) => layer.id === selectedLayerID);
-  const SelectedLayerUIPanel = selectedLayer
-    ? pluginByID(selectedLayer.pluginID).UIPanel
+  const selectedLayerPlugin = selectedLayer
+    ? pluginByID(selectedLayer.pluginID)
     : null;
+  const SelectedLayerUIPanel = selectedLayerPlugin?.UIPanel;
 
   return (
     <div className="absolute left-0 top-0 right-0 bottom-0 flex flex-col items-center">
@@ -231,21 +241,37 @@ export function ReacjinEditor() {
             />
           </div>
         </div>
-        <div className="absolute right-8 top-8 flex flex-col items-end gap-4">
+        <div className="absolute left-8 top-8 flex flex-col items-end gap-4">
           <LayerPanel
             layers={layers}
             setLayers={setLayers}
             selectedLayerID={selectedLayerID}
             setSelectedLayerID={setSelectedLayerID}
           />
+        </div>
+        <div className="absolute right-8 top-8 flex flex-col items-end gap-4">
           {SelectedLayerUIPanel && (
-            <SelectedLayerUIPanel
-              ctx={canvasRef.current?.getContext('2d')!}
-              options={selectedLayer!.options}
-              setOptions={(options) =>
-                handleSetOptions(selectedLayer!, options)
+            <Panel
+              title={`Settings: ${selectedLayer?.pluginID}`}
+              buttons={
+                <button
+                  onClick={() => setSelectedLayerID(null)}
+                  className="p-2 -m-1"
+                >
+                  <MdOutlineClose />
+                </button>
               }
-            />
+            >
+              <div className="flex flex-col gap-2 p-2">
+                <SelectedLayerUIPanel
+                  ctx={canvasRef.current?.getContext('2d')!}
+                  options={selectedLayer!.options}
+                  setOptions={(options) =>
+                    handleSetOptions(selectedLayer!, options)
+                  }
+                />
+              </div>
+            </Panel>
           )}
         </div>
       </div>

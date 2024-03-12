@@ -5,7 +5,6 @@ import {
   StyledTextStyle,
 } from 'canvas-styled-text';
 
-import {Panel} from '@/app/reacjin/Panel';
 import {PanelRow} from '@/app/reacjin/PanelRow';
 import {LayerPlugin} from '@/app/reacjin/plugins/types';
 
@@ -107,109 +106,107 @@ export const textLayerPlugin: LayerPlugin<TextLayerOptions> = {
     }
 
     return (
-      <Panel title="Settings: Text">
-        <div className="flex flex-col gap-2 p-2">
-          <PanelRow label="text">
-            <textarea
-              value={options.text}
-              onChange={(e) =>
-                setOptions({
-                  ...options,
-                  text: e.currentTarget.value,
-                })
-              }
-            />
-          </PanelRow>
-          <PanelRow label="auto-fit text">
-            <input
-              type="checkbox"
-              checked={options.autoFitText}
-              onChange={(e) =>
-                setOptions({
-                  ...options,
-                  autoFitText: e.currentTarget.checked,
-                })
-              }
-            />
-          </PanelRow>
-          <PanelRow label="font size">
-            <input
-              className={options.autoFitText ? 'disabled' : ''}
-              type="text"
-              value={options.fontSize}
-              onChange={(e) =>
-                setOptions({
-                  ...options,
-                  fontSize: e.currentTarget.valueAsNumber,
-                })
-              }
-            />
-          </PanelRow>
-          <PanelRow label="font family">
-            <input
-              type="text"
-              value={options.fontFamily}
-              onChange={(e) =>
-                setOptions({
-                  ...options,
-                  fontFamily: e.currentTarget.value,
-                })
-              }
-            />
-          </PanelRow>
-          <PanelRow label="fill style">
-            <input
-              type="text"
-              value={options.fillStyle}
-              onChange={(e) =>
-                setOptions({
-                  ...options,
-                  fillStyle: e.currentTarget.value,
-                })
-              }
-            />
-          </PanelRow>
-          <PanelRow label="stroke style">
-            <input
-              type="text"
-              value={options.strokeStyle}
-              onChange={(e) =>
-                setOptions({
-                  ...options,
-                  strokeStyle: e.currentTarget.value,
-                })
-              }
-            />
-          </PanelRow>
-          <PanelRow label="stroke width">
-            <input
-              type="number"
-              value={options.strokeWidth}
-              onChange={(e) =>
-                setOptions({
-                  ...options,
-                  strokeWidth: parseInt(e.currentTarget.value),
-                })
-              }
-            />
-          </PanelRow>
-          <PanelRow label="text align">
-            <select
-              value={options.textAlign}
-              onChange={(e) =>
-                setOptions({
-                  ...options,
-                  textAlign: e.currentTarget.value as CanvasTextAlign,
-                })
-              }
-            >
-              <option value="left">left</option>
-              <option value="right">right</option>
-              <option value="center">center</option>
-            </select>
-          </PanelRow>
-        </div>
-      </Panel>
+      <>
+        <PanelRow label="text">
+          <textarea
+            value={options.text}
+            onChange={(e) =>
+              setOptions({
+                ...options,
+                text: e.currentTarget.value,
+              })
+            }
+          />
+        </PanelRow>
+        <PanelRow label="auto-fit text">
+          <input
+            type="checkbox"
+            checked={options.autoFitText}
+            onChange={(e) =>
+              setOptions({
+                ...options,
+                autoFitText: e.currentTarget.checked,
+              })
+            }
+          />
+        </PanelRow>
+        <PanelRow label="font size">
+          <input
+            className={options.autoFitText ? 'disabled' : ''}
+            type="text"
+            value={options.fontSize}
+            onChange={(e) =>
+              setOptions({
+                ...options,
+                fontSize: e.currentTarget.valueAsNumber,
+              })
+            }
+          />
+        </PanelRow>
+        <PanelRow label="font family">
+          <input
+            type="text"
+            value={options.fontFamily}
+            onChange={(e) =>
+              setOptions({
+                ...options,
+                fontFamily: e.currentTarget.value,
+              })
+            }
+          />
+        </PanelRow>
+        <PanelRow label="fill style">
+          <input
+            type="text"
+            value={options.fillStyle}
+            onChange={(e) =>
+              setOptions({
+                ...options,
+                fillStyle: e.currentTarget.value,
+              })
+            }
+          />
+        </PanelRow>
+        <PanelRow label="stroke style">
+          <input
+            type="text"
+            value={options.strokeStyle}
+            onChange={(e) =>
+              setOptions({
+                ...options,
+                strokeStyle: e.currentTarget.value,
+              })
+            }
+          />
+        </PanelRow>
+        <PanelRow label="stroke width">
+          <input
+            type="number"
+            value={options.strokeWidth}
+            onChange={(e) =>
+              setOptions({
+                ...options,
+                strokeWidth: parseInt(e.currentTarget.value),
+              })
+            }
+          />
+        </PanelRow>
+        <PanelRow label="text align">
+          <select
+            value={options.textAlign}
+            onChange={(e) =>
+              setOptions({
+                ...options,
+                textAlign: e.currentTarget.value as CanvasTextAlign,
+              })
+            }
+          >
+            <option value="left">left</option>
+            <option value="right">right</option>
+            <option value="center">center</option>
+          </select>
+        </PanelRow>
+      </>
     );
   },
 };

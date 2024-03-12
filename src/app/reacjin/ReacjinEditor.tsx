@@ -9,10 +9,12 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import {MdOutlineFileDownload} from 'react-icons/md';
 import {v4 as uuid} from 'uuid';
 
 import {Button} from '@/app/reacjin/Button';
 import {ComboRange} from '@/app/reacjin/ComboRange';
+import {FAB} from '@/app/reacjin/FAB';
 import {Panel} from '@/app/reacjin/Panel';
 import {
   PluginByID,
@@ -180,6 +182,16 @@ export function ReacjinEditor() {
     [],
   );
 
+  const handleDownloadImage = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const url = canvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'reacji.png';
+    a.click();
+  }, []);
+
   const selectedLayer = layers.find((layer) => layer.id === selectedLayerID);
   const SelectedLayerUIPanel = selectedLayer
     ? pluginByID(selectedLayer.pluginID).UIPanel
@@ -237,6 +249,9 @@ export function ReacjinEditor() {
           )}
         </div>
       </div>
+      <FAB onClick={handleDownloadImage}>
+        <MdOutlineFileDownload />
+      </FAB>
     </div>
   );
 }

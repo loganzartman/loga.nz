@@ -18,8 +18,8 @@ import {
   PluginByID,
   pluginByID,
   PluginOptions,
-  TextLayerOptions,
-} from '@/app/reacjin/plugins';
+} from '@/app/reacjin/plugins/registry';
+import {TextLayerOptions} from '@/app/reacjin/plugins/textLayer';
 import styles from '@/app/reacjin/styles.module.css';
 import {Toolbar} from '@/app/reacjin/Toolbar';
 

@@ -165,6 +165,7 @@ export function ReacjinEditor() {
       strokeStyle: 'black',
       strokeWidth: 2,
       textAlign: 'center',
+      lineHeight: 1.1,
     }),
     createLayer('image', {src: 'https://picsum.photos/256'}),
   ]);

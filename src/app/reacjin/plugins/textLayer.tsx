@@ -17,6 +17,7 @@ export type TextLayerOptions = {
   strokeStyle: string;
   strokeWidth: number;
   textAlign: CanvasTextAlign;
+  lineHeight: number;
 };
 
 function getBestFitFontSize(
@@ -70,6 +71,7 @@ const getStyle = (options: TextLayerOptions): StyledTextStyle => ({
   strokeWidth: options.strokeWidth,
   align: options.textAlign,
   baseline: 'middle',
+  lineHeight: options.lineHeight,
 });
 
 export const textLayerPlugin: LayerPlugin<TextLayerOptions> = {
@@ -133,7 +135,7 @@ export const textLayerPlugin: LayerPlugin<TextLayerOptions> = {
         <PanelRow label="font size">
           <input
             className={options.autoFitText ? 'disabled' : ''}
-            type="text"
+            type="number"
             value={options.fontSize}
             onChange={(e) =>
               setOptions({
@@ -157,24 +159,24 @@ export const textLayerPlugin: LayerPlugin<TextLayerOptions> = {
         </PanelRow>
         <PanelRow label="fill style">
           <input
-            type="text"
+            type="color"
             value={options.fillStyle}
             onChange={(e) =>
               setOptions({
                 ...options,
-                fillStyle: e.currentTarget.value,
+                fillStyle: e.target.value,
               })
             }
           />
         </PanelRow>
         <PanelRow label="stroke style">
           <input
-            type="text"
+            type="color"
             value={options.strokeStyle}
             onChange={(e) =>
               setOptions({
                 ...options,
-                strokeStyle: e.currentTarget.value,
+                strokeStyle: e.target.value,
               })
             }
           />
@@ -205,6 +207,19 @@ export const textLayerPlugin: LayerPlugin<TextLayerOptions> = {
             <option value="right">right</option>
             <option value="center">center</option>
           </select>
+        </PanelRow>
+        <PanelRow label="line height">
+          <input
+            type="number"
+            value={options.lineHeight}
+            step="0.01"
+            onChange={(e) =>
+              setOptions({
+                ...options,
+                lineHeight: e.currentTarget.valueAsNumber,
+              })
+            }
+          />
         </PanelRow>
       </>
     );

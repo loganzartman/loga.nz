@@ -39,6 +39,7 @@ export const createTextLayer = (
     strokeWidth: 4,
     text: '',
     textAlign: 'center',
+    lineHeight: 1.1,
   });
 
 export const createImageLayer = (

@@ -73,7 +73,7 @@ const getStyle = (options: TextLayerOptions): StyledTextStyle => ({
 });
 
 export const textLayerPlugin: LayerPlugin<TextLayerOptions> = {
-  draw: (ctx, options) => {
+  draw: ({ctx, options}) => {
     const baseStyle = getStyle(options);
     ctx.lineJoin = 'round';
     drawStyledText(

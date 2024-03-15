@@ -1,8 +1,16 @@
 import {LayerPlugin} from '@/app/reacjin/plugins/types';
 
+export type ImageLayerOptions = {
+  src: string;
+};
+
+export type ImageLayerComputed = {
+  image: ImageBitmap;
+};
+
 export const imageLayerPlugin: LayerPlugin<
-  {src: string},
-  {image: ImageBitmap}
+  ImageLayerOptions,
+  ImageLayerComputed
 > = {
   compute: async ({src}) => {
     const data = await fetch(src, {credentials: 'omit'});

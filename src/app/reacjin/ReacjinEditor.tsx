@@ -14,20 +14,26 @@ import {
   MdOutlineClose,
   MdOutlineDragIndicator,
   MdOutlineFileDownload,
+  MdOutlineFormatPaint,
+  MdOutlineImage,
+  MdOutlineLayers,
+  MdOutlineTextFields,
 } from 'react-icons/md';
-import {v4 as uuid} from 'uuid';
 
 import {Button} from '@/app/reacjin/Button';
 import {ComboRange} from '@/app/reacjin/ComboRange';
+import {ComputedCache} from '@/app/reacjin/ComputedCache';
 import {FAB} from '@/app/reacjin/FAB';
-import {Panel} from '@/app/reacjin/Panel';
 import {
-  PluginByID,
-  pluginByID,
-  PluginID,
-  PluginOptions,
-} from '@/app/reacjin/plugins/registry';
-import {LayerComputeResult} from '@/app/reacjin/plugins/types';
+  createFillLayer,
+  createImageLayer,
+  createLayer,
+  createTextLayer,
+  Layer,
+  Layers,
+} from '@/app/reacjin/layer';
+import {Panel} from '@/app/reacjin/Panel';
+import {pluginByID} from '@/app/reacjin/plugins/registry';
 import styles from '@/app/reacjin/styles.module.css';
 import {Toolbar} from '@/app/reacjin/Toolbar';
 
@@ -37,21 +43,6 @@ const overpass = Overpass({weight: 'variable', preload: false});
 
 const fonts = [nunito, overpass, workSans];
 
-type Layer<PluginID extends string> = {
-  id: string;
-  pluginID: PluginID;
-  options: PluginOptions<PluginByID<PluginID>>;
-};
-
-type Layers = Layer<string>[];
-
-type ComputedResults = Record<string, LayerComputeResult<unknown>>;
-
-const createLayer = <ID extends PluginID>(
-  pluginID: ID,
-  options: PluginOptions<PluginByID<ID>>,
-): Layer<ID> => ({id: uuid(), pluginID, options});
-
 const ImageCanvas = React.forwardRef(
   (
     {
@@ -59,13 +50,13 @@ const ImageCanvas = React.forwardRef(
       height,
       zoom,
       layers,
-      computedResults,
+      computedCache,
     }: {
       width: number;
       height: number;
       zoom: number;
       layers: Layers;
-      computedResults: ComputedResults;
+      computedCache: ComputedCache;
     },
     ref,
   ) => {
@@ -82,10 +73,10 @@ const ImageCanvas = React.forwardRef(
         const layer = layers[i];
         const plugin = pluginByID(layer.pluginID);
         const {options} = layer;
-        const {computed} = computedResults[layer.id] ?? {};
+        const {computed} = computedCache.get(layer.pluginID, options) ?? {};
         plugin.draw({ctx, options, computed});
       }
-    }, [computedResults, layers]);
+    }, [computedCache, layers]);
 
     return (
       <div className={`p-2 shadow-lg rounded-md ring-1 ring-brand-100/20`}>
@@ -124,7 +115,7 @@ function LayerPanel({
   );
 
   return (
-    <Panel title="Layers" className="w-[20ch]">
+    <Panel title="Layers" icon={<MdOutlineLayers />} className="w-[20ch]">
       <Reorder.Group
         axis="y"
         values={layers}
@@ -176,15 +167,10 @@ export function ReacjinEditor() {
       textAlign: 'center',
     }),
     createLayer('image', {src: 'https://picsum.photos/256'}),
-    createLayer('fill', {fillStyle: 'purple'}),
   ]);
   const [selectedLayerID, setSelectedLayerID] = useState<string | null>(null);
-  const [computedResults, setComputeResults] = useState<ComputedResults>({});
-  const computedResultsRef = useRef(computedResults);
+  const [computedCache] = useState(() => new ComputedCache());
   const [computing, setComputing] = useState(false);
-  const firstRender = useRef(true);
-
-  computedResultsRef.current = computedResults;
 
   const setZoomToSize = useCallback(
     (size: number) => {
@@ -215,34 +201,24 @@ export function ReacjinEditor() {
     a.click();
   }, []);
 
-  const recomputeLayer = useCallback(
-    async (layerId: string) => {
-      const layer = layers.find((layer) => layer.id === layerId);
-      if (!layer)
-        throw new Error(`Trying to recompute non-existent layer: ${layerId}`);
-
-      const plugin = pluginByID(layer.pluginID);
-      if (!plugin.compute) return;
-
-      const oldResult = computedResults[layerId];
-      if (oldResult) {
-        await oldResult.cleanup?.(oldResult.computed);
-      }
-
-      const result = await plugin.compute(layer.options);
-      setComputeResults((results) => ({...results, [layerId]: result}));
-    },
-    [computedResults, layers],
-  );
-
-  // clean up all computed results on unmount
-  useEffect(() => {
-    return () => {
-      for (const result of Object.values(computedResultsRef.current)) {
-        result.cleanup?.(result.computed);
-      }
-    };
+  const handleAddImage = useCallback(() => {
+    setLayers((layers) => [createImageLayer({}), ...layers]);
   }, []);
+
+  const handleAddText = useCallback(() => {
+    setLayers((layers) => [
+      createTextLayer({
+        text: 'Hello, world!',
+      }),
+      ...layers,
+    ]);
+  }, []);
+
+  const handleAddFill = useCallback(() => {
+    setLayers((layers) => [createFillLayer({fillStyle: 'purple'}), ...layers]);
+  }, []);
+
+  // TODO: clean up all computed results on unmount
 
   const selectedLayer = layers.find((layer) => layer.id === selectedLayerID);
   const selectedLayerPlugin = selectedLayer
@@ -250,18 +226,12 @@ export function ReacjinEditor() {
     : null;
   const SelectedLayerUIPanel = selectedLayerPlugin?.UIPanel;
 
-  if (firstRender.current) {
-    firstRender.current = false;
-
-    setComputing(true);
-    Promise.all(layers.map((layer) => recomputeLayer(layer.id))).then(() =>
-      setComputing(false),
-    );
-    return null;
-  }
-
   if (computing) {
     return <div>Loading...</div>;
+  } else if (computedCache.anyOutdated(layers)) {
+    setComputing(true);
+    computedCache.computeOutdated(layers).then(() => setComputing(false));
+    return null;
   }
 
   return (
@@ -273,7 +243,7 @@ export function ReacjinEditor() {
         <div>simple reacji editor</div>
       </div>
       <div className="flex flex-row gap-2 items-center p-2">
-        <Toolbar label="zoom">
+        <Toolbar label="Zoom">
           <ComboRange
             min={1}
             max={400}
@@ -285,6 +255,17 @@ export function ReacjinEditor() {
           <Button onClick={() => setZoomToSize(64)}>Hover</Button>
           <Button onClick={() => setZoom(1)}>100%</Button>
         </Toolbar>
+        <Toolbar label="Add">
+          <Button onClick={handleAddImage} icon={<MdOutlineImage />}>
+            Image
+          </Button>
+          <Button onClick={handleAddText} icon={<MdOutlineTextFields />}>
+            Text
+          </Button>
+          <Button onClick={handleAddFill} icon={<MdOutlineFormatPaint />}>
+            Fill
+          </Button>
+        </Toolbar>
       </div>
       <div className="relative w-full h-full flex-1">
         <div className="absolute left-0 top-0 right-0 bottom-0 overflow-auto flex flex-col items-center justify-center">
@@ -295,7 +276,7 @@ export function ReacjinEditor() {
               height={imageSize[1]}
               zoom={zoom}
               layers={layers}
-              computedResults={computedResults}
+              computedCache={computedCache}
             />
           </div>
         </div>

@@ -2,7 +2,7 @@ import fs from 'fs';
 import matter from 'gray-matter';
 import {join} from 'path';
 
-const postsDirectory = join(process.cwd(), 'src/app/blog/posts');
+const postsDirectory = join(process.cwd(), 'src/app/(home)/blog/posts');
 
 export type Post = {
   content: string;

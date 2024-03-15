@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import {getAllPosts, Post} from '@/app/blog/lib/posts';
+import {getAllPosts, Post} from '@/app/(home)/blog/lib/posts';
 import CatLeft from '@/image/cat-left.svg';
 import Date from '@/lib/components/Date';
 

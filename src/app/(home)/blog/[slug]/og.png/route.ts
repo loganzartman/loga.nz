@@ -1,4 +1,4 @@
-import {getAllPosts, getPostBySlug} from '@/app/blog/lib/posts';
+import {getAllPosts, getPostBySlug} from '@/app/(home)/blog/lib/posts';
 import {generateOgImage} from '@/lib/generate-og-image';
 
 export async function generateStaticParams() {

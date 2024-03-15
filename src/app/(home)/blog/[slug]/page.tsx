@@ -3,15 +3,15 @@ import {Metadata} from 'next';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 
-import {mdComponents} from '@/app/blog/components/mdComponents';
-import {createDiscussionHref} from '@/app/blog/lib/discussions';
+import {mdComponents} from '@/app/(home)/blog/components/mdComponents';
+import {createDiscussionHref} from '@/app/(home)/blog/lib/discussions';
 import {
   getAllPosts,
   getPathBySlug,
   getPostBySlug,
   getSiblingPosts,
   Post,
-} from '@/app/blog/lib/posts';
+} from '@/app/(home)/blog/lib/posts';
 import Arrow from '@/image/arrow.svg';
 import Divider from '@/image/divider.svg';
 import Date from '@/lib/components/Date';

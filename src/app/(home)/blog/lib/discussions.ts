@@ -6,7 +6,7 @@ import {
 } from '@octokit/graphql-schema';
 import {App} from 'octokit';
 
-import {Post} from '@/app/blog/lib/posts';
+import {Post} from '@/app/(home)/blog/lib/posts';
 
 const getPrivateKey = () => {
   const key = process.env.PRIVATE_KEY_GITHUB;

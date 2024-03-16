@@ -237,12 +237,7 @@ export function ReacjinEditor() {
 
   return (
     <div className="absolute left-0 top-0 right-0 bottom-0 flex flex-col items-center">
-      <div className="flex flex-row items-center">
-        <div className="text-2xl mr-2" title="rē-ˈak-shən">
-          reacjin
-        </div>
-        <div>simple reacji editor</div>
-      </div>
+      <div className="flex flex-row items-center"></div>
       <div className="flex flex-row gap-2 items-center p-2">
         <Toolbar label="Zoom">
           <ComboRange

@@ -31,7 +31,7 @@ import {pluginByID} from '@/app/reacjin/plugins/registry';
 import {Toolbar} from '@/app/reacjin/Toolbar';
 import {MotionDiv} from '@/lib/framer-motion';
 
-export function ReacjinEditor() {
+export default function ReacjinEditor() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const editorAreaRef = useRef<HTMLDivElement>(null);
   const [imageSize, setImageSize] = useState([256, 256]);

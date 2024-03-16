@@ -1,6 +1,9 @@
 import {Metadata} from 'next';
+import dynamic from 'next/dynamic';
 
-import {ReacjinEditor} from '@/app/reacjin/ReacjinEditor';
+const ReacjinEditor = dynamic(() => import('@/app/reacjin/ReacjinEditor'), {
+  ssr: false,
+});
 
 export const metadata: Metadata = {
   title: 'reacjin',

@@ -32,6 +32,7 @@ import {
   Layer,
   Layers,
 } from '@/app/reacjin/layer';
+import {LoadingOverlay} from '@/app/reacjin/LoadingOverlay';
 import {Panel} from '@/app/reacjin/Panel';
 import {pluginByID} from '@/app/reacjin/plugins/registry';
 import styles from '@/app/reacjin/styles.module.css';
@@ -50,12 +51,14 @@ const ImageCanvas = React.forwardRef(
       height,
       zoom,
       layers,
+      computing,
       computedCache,
     }: {
       width: number;
       height: number;
       zoom: number;
       layers: Layers;
+      computing: boolean;
       computedCache: ComputedCache;
     },
     ref,
@@ -65,6 +68,7 @@ const ImageCanvas = React.forwardRef(
     useImperativeHandle(ref, () => canvasRef.current);
 
     useEffect(() => {
+      if (computing) return;
       if (!canvasRef.current) return;
       const ctx = canvasRef.current.getContext('2d')!;
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
@@ -76,10 +80,12 @@ const ImageCanvas = React.forwardRef(
         const {computed} = computedCache.get(layer.pluginID, options) ?? {};
         plugin.draw({ctx, options, computed});
       }
-    }, [computedCache, layers]);
+    }, [computing, computedCache, layers]);
 
     return (
-      <div className={`p-2 shadow-lg rounded-md ring-1 ring-brand-100/20`}>
+      <div
+        className={`relative p-2 shadow-lg rounded-md ring-1 ring-brand-100/20`}
+      >
         <canvas
           ref={canvasRef}
           className={`${styles.checkerBackground}`}
@@ -90,6 +96,7 @@ const ImageCanvas = React.forwardRef(
           width={width}
           height={height}
         ></canvas>
+        {computing && <LoadingOverlay />}
       </div>
     );
   },
@@ -227,9 +234,7 @@ export function ReacjinEditor() {
     : null;
   const SelectedLayerUIPanel = selectedLayerPlugin?.UIPanel;
 
-  if (computing) {
-    return <div>Loading...</div>;
-  } else if (computedCache.anyOutdated(layers)) {
+  if (!computing && computedCache.anyOutdated(layers)) {
     setComputing(true);
     computedCache.computeOutdated(layers).then(() => setComputing(false));
     return null;
@@ -272,6 +277,7 @@ export function ReacjinEditor() {
               height={imageSize[1]}
               zoom={zoom}
               layers={layers}
+              computing={computing}
               computedCache={computedCache}
             />
           </div>

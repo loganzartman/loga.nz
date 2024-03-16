@@ -1,7 +1,7 @@
 'use client';
 
 import {AnimatePresence} from 'framer-motion';
-import React, {useCallback, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   MdAddPhotoAlternate,
   MdOutlineClose,
@@ -96,6 +96,31 @@ export default function ReacjinEditor() {
       return;
     }
   }, []);
+
+  const handlePaste = useCallback((event: ClipboardEvent) => {
+    if (!event.clipboardData) return;
+    if (event.clipboardData.files.length > 0) {
+      const file = event.clipboardData.files[0];
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const src = event.target?.result as string;
+          setLayers((layers) => [createImageLayer({src}), ...layers]);
+        };
+        reader.readAsDataURL(file);
+      }
+    } else {
+      const text = event.clipboardData.getData('text');
+      if (text) {
+        setLayers((layers) => [createTextLayer({text}), ...layers]);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('paste', handlePaste);
+    return () => document.removeEventListener('paste', handlePaste);
+  }, [handlePaste]);
 
   const handleSetOptions = useCallback(
     (targetLayer: Layer<string>, options: unknown) => {

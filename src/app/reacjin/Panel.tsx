@@ -26,6 +26,9 @@ export function Panel({
 
   return (
     <MotionDiv
+      initial={{opacity: 0, scale: 0.7}}
+      animate={{opacity: 1, scale: 1.0}}
+      exit={{opacity: 0, scale: 0.9}}
       drag
       dragListener={false}
       dragControls={controls}

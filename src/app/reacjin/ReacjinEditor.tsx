@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
-import {Reorder} from 'framer-motion';
+import {AnimatePresence, Reorder} from 'framer-motion';
 import {Nunito, Overpass, Work_Sans} from 'next/font/google';
 import React, {
   useCallback,
@@ -310,31 +310,35 @@ export function ReacjinEditor() {
                 dragConstraints={editorAreaRef}
               />
             </div>
-            <div className="absolute right-0 top-0 flex flex-col items-end gap-4">
-              {SelectedLayerUIPanel && (
-                <Panel
-                  title={`Layer settings: ${selectedLayer?.pluginID}`}
-                  buttons={
-                    <button
-                      onClick={() => setSelectedLayerID(null)}
-                      className="p-2 -m-1"
-                    >
-                      <MdOutlineClose />
-                    </button>
-                  }
-                  dragConstraints={editorAreaRef}
-                >
-                  <div className="flex flex-col gap-2 p-2">
-                    <SelectedLayerUIPanel
-                      ctx={canvasRef.current?.getContext('2d')!}
-                      options={selectedLayer!.options}
-                      setOptions={(options) =>
-                        handleSetOptions(selectedLayer!, options)
-                      }
-                    />
-                  </div>
-                </Panel>
-              )}
+            <div className="absolute right-0 top-0">
+              <AnimatePresence>
+                {SelectedLayerUIPanel && (
+                  <Panel
+                    key={selectedLayerID}
+                    title={`Layer settings: ${selectedLayer?.pluginID}`}
+                    buttons={
+                      <button
+                        onClick={() => setSelectedLayerID(null)}
+                        className="p-2 -m-1"
+                      >
+                        <MdOutlineClose />
+                      </button>
+                    }
+                    dragConstraints={editorAreaRef}
+                    className="absolute right-0 top-0"
+                  >
+                    <div className="flex flex-col gap-2 p-2">
+                      <SelectedLayerUIPanel
+                        ctx={canvasRef.current?.getContext('2d')!}
+                        options={selectedLayer!.options}
+                        setOptions={(options) =>
+                          handleSetOptions(selectedLayer!, options)
+                        }
+                      />
+                    </div>
+                  </Panel>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </div>

@@ -11,6 +11,7 @@ import React, {
   useState,
 } from 'react';
 import {
+  MdAddPhotoAlternate,
   MdDeleteForever,
   MdOutlineClose,
   MdOutlineDragIndicator,
@@ -39,6 +40,7 @@ import {PanelProvider} from '@/app/reacjin/PanelContext';
 import {pluginByID} from '@/app/reacjin/plugins/registry';
 import styles from '@/app/reacjin/styles.module.css';
 import {Toolbar} from '@/app/reacjin/Toolbar';
+import {MotionDiv} from '@/lib/framer-motion';
 
 const nunito = Nunito({weight: 'variable', preload: false});
 const workSans = Work_Sans({weight: 'variable', preload: false});
@@ -193,6 +195,7 @@ export function ReacjinEditor() {
   const [selectedLayerID, setSelectedLayerID] = useState<string | null>(null);
   const [computedCache] = useState(() => new ComputedCache());
   const [computing, setComputing] = useState(false);
+  const [dropping, setDropping] = useState(false);
 
   const setZoomToSize = useCallback(
     (size: number) => {
@@ -201,6 +204,30 @@ export function ReacjinEditor() {
     },
     [imageSize],
   );
+
+  const handleDragOver = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+    setDropping(true);
+  }, []);
+
+  const handleDragLeave = useCallback((event: React.DragEvent) => {
+    setDropping(false);
+  }, []);
+
+  const handleDrop = useCallback((event: React.DragEvent) => {
+    event.preventDefault();
+
+    const file = event.dataTransfer.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const src = event.target?.result as string;
+      setLayers((layers) => [createImageLayer({src}), ...layers]);
+    };
+    reader.readAsDataURL(file);
+
+    setDropping(false);
+  }, []);
 
   const handleSetOptions = useCallback(
     (targetLayer: Layer<string>, options: unknown) => {
@@ -256,7 +283,12 @@ export function ReacjinEditor() {
 
   return (
     <PanelProvider>
-      <div className="absolute left-0 top-0 right-0 bottom-0 flex flex-col items-center">
+      <div
+        className="absolute left-0 top-0 right-0 bottom-0 flex flex-col items-center"
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
         <div className="flex flex-row items-center"></div>
         <div className="flex flex-row gap-2 items-center p-2">
           <Toolbar label="Zoom">
@@ -345,6 +377,23 @@ export function ReacjinEditor() {
         <FAB onClick={handleDownloadImage}>
           <MdOutlineFileDownload />
         </FAB>
+        <AnimatePresence>
+          {dropping && (
+            <MotionDiv
+              initial={{opacity: 0}}
+              animate={{opacity: 1}}
+              exit={{opacity: 0}}
+              className="absolute left-0 top-0 right-0 bottom-0 bg-background/50 flex items-center justify-center z-50"
+            >
+              <div className="flex flex-col items-center gap-1">
+                <div className="text-2xl">Drop to add</div>
+                <div>
+                  <MdAddPhotoAlternate size={64} />
+                </div>
+              </div>
+            </MotionDiv>
+          )}
+        </AnimatePresence>
       </div>
     </PanelProvider>
   );

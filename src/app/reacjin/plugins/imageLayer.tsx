@@ -1,7 +1,9 @@
 'use client';
 
 import {drawStyledText} from 'canvas-styled-text';
+import {MdOutlineImage} from 'react-icons/md';
 
+import {Button} from '@/app/reacjin/Button';
 import {PanelRow} from '@/app/reacjin/PanelRow';
 import {LayerPlugin} from '@/app/reacjin/plugins/types';
 
@@ -67,14 +69,45 @@ export const imageLayerPlugin: LayerPlugin<
   },
 
   UIPanel({options, setOptions}) {
+    const uploadFile = async () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = async () => {
+        if (input.files && input.files.length > 0) {
+          const file = input.files[0];
+          const url = URL.createObjectURL(file);
+          setOptions({src: url});
+        }
+      };
+      input.click();
+    };
+
+    const setFromURL = () => {
+      const url = prompt('Enter image URL');
+      if (url) {
+        setOptions({src: url});
+      }
+    };
+
     return (
       <>
-        <PanelRow label="URL">
-          <input
-            type="text"
-            value={options.src}
-            onChange={(e) => setOptions({...options, src: e.target.value})}
-          />
+        <img
+          src={options.src}
+          alt="preview"
+          className="pointer-events-none select-none w-[256px]"
+        />
+        {options.src.startsWith('data:') || options.src.startsWith('blob:') ? (
+          <div className="flex items-center gap-2">
+            <MdOutlineImage />
+            <div>Image file</div>
+          </div>
+        ) : (
+          <div className="text-ellipsis w-[40ch]">{options.src}</div>
+        )}
+        <PanelRow label="Replace" className="items-start mt-4">
+          <Button onClick={uploadFile}>Upload</Button>
+          <Button onClick={setFromURL}>From URL</Button>
         </PanelRow>
       </>
     );

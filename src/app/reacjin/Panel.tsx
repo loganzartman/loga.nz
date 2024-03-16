@@ -1,5 +1,8 @@
 'use client';
 
+import clsx from 'clsx';
+import {useDragControls} from 'framer-motion';
+
 import {usePanel} from '@/app/reacjin/PanelContext';
 import {MotionDiv} from '@/lib/framer-motion';
 
@@ -18,29 +21,41 @@ export function Panel({
   icon?: React.ReactNode;
   className?: string;
 }) {
-  const {zIndex, activate} = usePanel();
+  const {zIndex, active, activate} = usePanel();
+  const controls = useDragControls();
 
   return (
     <MotionDiv
       drag
+      dragListener={false}
+      dragControls={controls}
       dragConstraints={dragConstraints}
-      dragMomentum={false}
       whileDrag={{scale: 1.05}}
-      onDragStart={() => {
+      dragTransition={{power: 0.15, timeConstant: 100}}
+      onPointerDown={() => {
         activate();
       }}
       style={{zIndex}}
-      className={`bg-background/80 backdrop-blur-sm rounded-lg ring-2 ring-brand-400/50 overflow-hidden shadow-black/50 shadow-xl ${className}`}
+      className={clsx(
+        'bg-background/80 backdrop-blur-md backdrop-saturate-150 rounded-lg ring-2 ring-brand-100/30 focus-within:ring-brand-400/50 overflow-hidden shadow-black/50 transition-shadow',
+        active ? 'shadow-xl' : 'shadow-md',
+        className,
+      )}
     >
       <div className="bg-brand-100/10 flex flex-col">
-        <div className="flex flex-row items-center p-2 bg-brand-100/10">
-          <div className="flex-1 flex flex-row items-center gap-2">
-            {icon && <div>{icon}</div>}
-            {title}
+        <div className="flex flex-row items-center bg-brand-100/10">
+          <div
+            onPointerDown={(e) => controls.start(e)}
+            className="flex-1 flex flex-row items-center gap-2 p-2 cursor-move select-none"
+          >
+            <div className="flex-1 flex flex-row items-center gap-2">
+              {icon && <div>{icon}</div>}
+              {title}
+            </div>
+            {buttons}
           </div>
-          {buttons}
         </div>
-        {children}
+        <div className="flex flex-col">{children}</div>
       </div>
     </MotionDiv>
   );

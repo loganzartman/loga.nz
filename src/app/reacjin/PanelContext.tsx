@@ -46,13 +46,21 @@ export function usePanel() {
 
   const zIndex = useMemo(() => stackingOrder.indexOf(id), [id, stackingOrder]);
 
+  const active = useMemo(
+    () => stackingOrder[stackingOrder.length - 1] === id,
+    [id, stackingOrder],
+  );
+
   const activate = useCallback(() => {
     setStackingOrder((order) => {
       return [...order.filter((x) => x !== id), id];
     });
   }, [id, setStackingOrder]);
 
-  const result = useMemo(() => ({zIndex, activate}), [zIndex, activate]);
+  const result = useMemo(
+    () => ({zIndex, active, activate}),
+    [zIndex, active, activate],
+  );
 
   return result;
 }

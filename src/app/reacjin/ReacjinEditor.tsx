@@ -1,5 +1,6 @@
 'use client';
 
+import clsx from 'clsx';
 import {Reorder} from 'framer-motion';
 import {Nunito, Overpass, Work_Sans} from 'next/font/google';
 import React, {
@@ -140,24 +141,28 @@ function LayerPanel({
         {layers.map((layer) => (
           <Reorder.Item key={layer.id} id={layer.id} value={layer}>
             <div
-              className={`p-2 transition-colors flex flex-row items-center ${
+              className={clsx(
+                'transition-colors flex flex-row items-stretch',
                 layer.id === selectedLayerID
                   ? 'bg-brand-400 text-background'
-                  : 'hover:bg-brand-400/20'
-              }`}
+                  : 'hover:bg-brand-400/20',
+              )}
             >
-              <div className="text-opacity-50">
-                <MdOutlineDragIndicator />
-              </div>
               <button
                 onClick={() => setSelectedLayerID(layer.id)}
-                className="flex-1"
+                className="flex-1 p-2 flex gap-2 items-center"
               >
-                {layer.pluginID as string}
+                <MdOutlineDragIndicator />
+                <div className="flex-1">{layer.pluginID as string}</div>
               </button>
-              <button onClick={() => handleDelete(layer.id)}>
-                <MdDeleteForever className="text-red-400" />
-              </button>
+              <div className="p-2 flex items-center">
+                <button
+                  onClick={() => handleDelete(layer.id)}
+                  className="bg-red-400 text-background text-lg rounded-lg p-0.5"
+                >
+                  <MdDeleteForever />
+                </button>
+              </div>
             </div>
           </Reorder.Item>
         ))}

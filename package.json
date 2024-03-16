@@ -15,6 +15,7 @@
     "@octokit/graphql-schema": "^14.39.1",
     "@types/uuid": "^9.0.8",
     "canvas-styled-text": "^3.0.3",
+    "clsx": "^2.1.0",
     "framer-motion": "^11.0.8",
     "gray-matter": "^4.0.3",
     "highlight.js": "^11.9.0",

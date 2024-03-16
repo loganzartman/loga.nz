@@ -34,6 +34,7 @@ import {
 } from '@/app/reacjin/layer';
 import {LoadingOverlay} from '@/app/reacjin/LoadingOverlay';
 import {Panel} from '@/app/reacjin/Panel';
+import {PanelProvider} from '@/app/reacjin/PanelContext';
 import {pluginByID} from '@/app/reacjin/plugins/registry';
 import styles from '@/app/reacjin/styles.module.css';
 import {Toolbar} from '@/app/reacjin/Toolbar';
@@ -108,11 +109,13 @@ function LayerPanel({
   setLayers,
   selectedLayerID,
   setSelectedLayerID,
+  dragConstraints,
 }: {
   layers: Layers;
   setLayers: React.Dispatch<React.SetStateAction<Layers>>;
   selectedLayerID: string | null;
   setSelectedLayerID: React.Dispatch<React.SetStateAction<string | null>>;
+  dragConstraints: React.RefObject<HTMLElement>;
 }) {
   const handleDelete = useCallback(
     (targetId: string) => {
@@ -122,7 +125,12 @@ function LayerPanel({
   );
 
   return (
-    <Panel title="Layers" icon={<MdOutlineLayers />} className="w-[20ch]">
+    <Panel
+      title="Layers"
+      icon={<MdOutlineLayers />}
+      dragConstraints={dragConstraints}
+      className="w-[20ch]"
+    >
       <Reorder.Group
         axis="y"
         values={layers}
@@ -160,6 +168,7 @@ function LayerPanel({
 
 export function ReacjinEditor() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const editorAreaRef = useRef<HTMLDivElement>(null);
   const [imageSize, setImageSize] = useState([256, 256]);
   const [zoom, setZoom] = useState(1);
   const [layers, setLayers] = useState<Layers>(() => [
@@ -241,84 +250,93 @@ export function ReacjinEditor() {
   }
 
   return (
-    <div className="absolute left-0 top-0 right-0 bottom-0 flex flex-col items-center">
-      <div className="flex flex-row items-center"></div>
-      <div className="flex flex-row gap-2 items-center p-2">
-        <Toolbar label="Zoom">
-          <ComboRange
-            min={1}
-            max={400}
-            step={1}
-            value={zoom * 100}
-            onChange={(value) => setZoom(value / 100)}
-          />
-          <Button onClick={() => setZoomToSize(16)}>Reaction</Button>
-          <Button onClick={() => setZoomToSize(64)}>Hover</Button>
-          <Button onClick={() => setZoom(1)}>100%</Button>
-        </Toolbar>
-        <Toolbar label="Add">
-          <Button onClick={handleAddImage} icon={<MdOutlineImage />}>
-            Image
-          </Button>
-          <Button onClick={handleAddText} icon={<MdOutlineTextFields />}>
-            Text
-          </Button>
-          <Button onClick={handleAddFill} icon={<MdOutlineFormatPaint />}>
-            Fill
-          </Button>
-        </Toolbar>
-      </div>
-      <div className="relative w-full h-full flex-1">
-        <div className="absolute left-0 top-0 right-0 bottom-0 overflow-auto flex flex-col items-center justify-center">
-          <div className="flex items-center justify-center">
-            <ImageCanvas
-              ref={canvasRef}
-              width={imageSize[0]}
-              height={imageSize[1]}
-              zoom={zoom}
-              layers={layers}
-              computing={computing}
-              computedCache={computedCache}
+    <PanelProvider>
+      <div className="absolute left-0 top-0 right-0 bottom-0 flex flex-col items-center">
+        <div className="flex flex-row items-center"></div>
+        <div className="flex flex-row gap-2 items-center p-2">
+          <Toolbar label="Zoom">
+            <ComboRange
+              min={1}
+              max={400}
+              step={1}
+              value={zoom * 100}
+              onChange={(value) => setZoom(value / 100)}
             />
+            <Button onClick={() => setZoomToSize(16)}>Reaction</Button>
+            <Button onClick={() => setZoomToSize(64)}>Hover</Button>
+            <Button onClick={() => setZoom(1)}>100%</Button>
+          </Toolbar>
+          <Toolbar label="Add">
+            <Button onClick={handleAddImage} icon={<MdOutlineImage />}>
+              Image
+            </Button>
+            <Button onClick={handleAddText} icon={<MdOutlineTextFields />}>
+              Text
+            </Button>
+            <Button onClick={handleAddFill} icon={<MdOutlineFormatPaint />}>
+              Fill
+            </Button>
+          </Toolbar>
+        </div>
+        <div className="relative w-full h-full flex-1">
+          <div className="absolute left-0 top-0 right-0 bottom-0 overflow-auto flex flex-col items-center justify-center">
+            <div className="flex items-center justify-center">
+              <ImageCanvas
+                ref={canvasRef}
+                width={imageSize[0]}
+                height={imageSize[1]}
+                zoom={zoom}
+                layers={layers}
+                computing={computing}
+                computedCache={computedCache}
+              />
+            </div>
+          </div>
+          <div
+            ref={editorAreaRef}
+            className="absolute left-8 top-8 right-8 bottom-8"
+          >
+            <div className="absolute left-0 top-0 flex flex-col items-end gap-4">
+              <LayerPanel
+                layers={layers}
+                setLayers={setLayers}
+                selectedLayerID={selectedLayerID}
+                setSelectedLayerID={setSelectedLayerID}
+                dragConstraints={editorAreaRef}
+              />
+            </div>
+            <div className="absolute right-0 top-0 flex flex-col items-end gap-4">
+              {SelectedLayerUIPanel && (
+                <Panel
+                  title={`Layer settings: ${selectedLayer?.pluginID}`}
+                  buttons={
+                    <button
+                      onClick={() => setSelectedLayerID(null)}
+                      className="p-2 -m-1"
+                    >
+                      <MdOutlineClose />
+                    </button>
+                  }
+                  dragConstraints={editorAreaRef}
+                >
+                  <div className="flex flex-col gap-2 p-2">
+                    <SelectedLayerUIPanel
+                      ctx={canvasRef.current?.getContext('2d')!}
+                      options={selectedLayer!.options}
+                      setOptions={(options) =>
+                        handleSetOptions(selectedLayer!, options)
+                      }
+                    />
+                  </div>
+                </Panel>
+              )}
+            </div>
           </div>
         </div>
-        <div className="absolute left-8 top-8 flex flex-col items-end gap-4">
-          <LayerPanel
-            layers={layers}
-            setLayers={setLayers}
-            selectedLayerID={selectedLayerID}
-            setSelectedLayerID={setSelectedLayerID}
-          />
-        </div>
-        <div className="absolute right-8 top-8 flex flex-col items-end gap-4">
-          {SelectedLayerUIPanel && (
-            <Panel
-              title={`Settings: ${selectedLayer?.pluginID}`}
-              buttons={
-                <button
-                  onClick={() => setSelectedLayerID(null)}
-                  className="p-2 -m-1"
-                >
-                  <MdOutlineClose />
-                </button>
-              }
-            >
-              <div className="flex flex-col gap-2 p-2">
-                <SelectedLayerUIPanel
-                  ctx={canvasRef.current?.getContext('2d')!}
-                  options={selectedLayer!.options}
-                  setOptions={(options) =>
-                    handleSetOptions(selectedLayer!, options)
-                  }
-                />
-              </div>
-            </Panel>
-          )}
-        </div>
+        <FAB onClick={handleDownloadImage}>
+          <MdOutlineFileDownload />
+        </FAB>
       </div>
-      <FAB onClick={handleDownloadImage}>
-        <MdOutlineFileDownload />
-      </FAB>
-    </div>
+    </PanelProvider>
   );
 }

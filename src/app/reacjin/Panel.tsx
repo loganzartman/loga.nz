@@ -1,19 +1,36 @@
+'use client';
+
+import {usePanel} from '@/app/reacjin/PanelContext';
+import {MotionDiv} from '@/lib/framer-motion';
+
 export function Panel({
   children,
+  dragConstraints,
   title,
   buttons,
   icon,
   className,
 }: {
   children: React.ReactNode;
+  dragConstraints: React.RefObject<HTMLElement>;
   title?: string;
   buttons?: React.ReactNode;
   icon?: React.ReactNode;
   className?: string;
 }) {
+  const {zIndex, activate} = usePanel();
+
   return (
-    <div
-      className={`bg-background rounded-lg overflow-hidden shadow-black/50 shadow-xl ${className}`}
+    <MotionDiv
+      drag
+      dragConstraints={dragConstraints}
+      dragMomentum={false}
+      whileDrag={{scale: 1.05}}
+      onDragStart={() => {
+        activate();
+      }}
+      style={{zIndex}}
+      className={`bg-background/80 backdrop-blur-sm rounded-lg ring-2 ring-brand-400/50 overflow-hidden shadow-black/50 shadow-xl ${className}`}
     >
       <div className="bg-brand-100/10 flex flex-col">
         <div className="flex flex-row items-center p-2 bg-brand-100/10">
@@ -25,6 +42,6 @@ export function Panel({
         </div>
         {children}
       </div>
-    </div>
+    </MotionDiv>
   );
 }

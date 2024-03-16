@@ -24,13 +24,12 @@ export const createLayer = <ID extends PluginID>(
 
 export const createFillLayer = (
   options?: Partial<FillLayerOptions>,
-): Layer<'fill'> => createLayer('fill', {...options, fillStyle: 'transparent'});
+): Layer<'fill'> => createLayer('fill', {fillStyle: 'transparent', ...options});
 
 export const createTextLayer = (
   options?: Partial<TextLayerOptions>,
 ): Layer<'text'> =>
   createLayer('text', {
-    ...options,
     autoFitText: false,
     fillStyle: 'white',
     fontFamily: 'sans-serif',
@@ -40,6 +39,7 @@ export const createTextLayer = (
     text: '',
     textAlign: 'center',
     lineHeight: 1.1,
+    ...options,
   });
 
 export const createImageLayer = (

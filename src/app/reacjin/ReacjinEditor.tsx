@@ -75,16 +75,26 @@ export default function ReacjinEditor() {
   const handleDrop = useCallback((event: React.DragEvent) => {
     event.preventDefault();
 
+    // if the dropped thing has an image, create an image layer
     const file = event.dataTransfer.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const src = event.target?.result as string;
-      setLayers((layers) => [createImageLayer({src}), ...layers]);
-    };
-    reader.readAsDataURL(file);
+    if (file?.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const src = event.target?.result as string;
+        setLayers((layers) => [createImageLayer({src}), ...layers]);
+      };
+      reader.readAsDataURL(file);
+      setDropping(false);
+      return;
+    }
 
-    setDropping(false);
+    // if the dropped thing has text, create a text layer
+    const text = event.dataTransfer.getData('text');
+    if (text) {
+      setLayers((layers) => [createTextLayer({text}), ...layers]);
+      setDropping(false);
+      return;
+    }
   }, []);
 
   const handleSetOptions = useCallback(

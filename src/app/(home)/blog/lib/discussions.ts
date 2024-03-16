@@ -22,7 +22,7 @@ const getAppId = () => {
 
 const getInstallationId = () => {
   const installId = process.env.INSTALLATION_ID_GITHUB;
-  if (!installId) throw new Error('Missing APP_ID_GITHUB in env');
+  if (!installId) throw new Error('Missing INSTALLATION_ID_GITHUB in env');
   return parseInt(installId);
 };
 

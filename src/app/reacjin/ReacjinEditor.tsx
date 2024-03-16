@@ -1,24 +1,13 @@
 'use client';
 
-import clsx from 'clsx';
-import {AnimatePresence, Reorder} from 'framer-motion';
-import {Nunito, Overpass, Work_Sans} from 'next/font/google';
-import React, {
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from 'react';
+import {AnimatePresence} from 'framer-motion';
+import React, {useCallback, useRef, useState} from 'react';
 import {
   MdAddPhotoAlternate,
-  MdDeleteForever,
   MdOutlineClose,
-  MdOutlineDragIndicator,
   MdOutlineFileDownload,
   MdOutlineFormatPaint,
   MdOutlineImage,
-  MdOutlineLayers,
   MdOutlineTextFields,
 } from 'react-icons/md';
 
@@ -26,6 +15,7 @@ import {Button} from '@/app/reacjin/Button';
 import {ComboRange} from '@/app/reacjin/ComboRange';
 import {ComputedCache} from '@/app/reacjin/ComputedCache';
 import {FAB} from '@/app/reacjin/FAB';
+import {ImageCanvas} from '@/app/reacjin/ImageCanvas';
 import {
   createFillLayer,
   createImageLayer,
@@ -34,144 +24,12 @@ import {
   Layer,
   Layers,
 } from '@/app/reacjin/layer';
-import {LoadingOverlay} from '@/app/reacjin/LoadingOverlay';
+import {LayerPanel} from '@/app/reacjin/LayerPanel';
 import {Panel} from '@/app/reacjin/Panel';
 import {PanelProvider} from '@/app/reacjin/PanelContext';
 import {pluginByID} from '@/app/reacjin/plugins/registry';
-import styles from '@/app/reacjin/styles.module.css';
 import {Toolbar} from '@/app/reacjin/Toolbar';
 import {MotionDiv} from '@/lib/framer-motion';
-
-const nunito = Nunito({weight: 'variable', preload: false});
-const workSans = Work_Sans({weight: 'variable', preload: false});
-const overpass = Overpass({weight: 'variable', preload: false});
-
-const fonts = [nunito, overpass, workSans];
-
-const ImageCanvas = React.forwardRef(
-  (
-    {
-      width,
-      height,
-      zoom,
-      layers,
-      computing,
-      computedCache,
-    }: {
-      width: number;
-      height: number;
-      zoom: number;
-      layers: Layers;
-      computing: boolean;
-      computedCache: ComputedCache;
-    },
-    ref,
-  ) => {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
-
-    useImperativeHandle(ref, () => canvasRef.current);
-
-    useEffect(() => {
-      if (computing) return;
-      if (!canvasRef.current) return;
-      const ctx = canvasRef.current.getContext('2d')!;
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-      for (let i = layers.length - 1; i >= 0; --i) {
-        const layer = layers[i];
-        const plugin = pluginByID(layer.pluginID);
-        const {options} = layer;
-        const {computed} = computedCache.get(layer.pluginID, options) ?? {};
-        plugin.draw({ctx, options, computed});
-      }
-    }, [computing, computedCache, layers]);
-
-    return (
-      <div
-        className={`relative p-2 shadow-lg rounded-md ring-1 ring-brand-100/20`}
-      >
-        <canvas
-          ref={canvasRef}
-          className={`${styles.checkerBackground}`}
-          style={{
-            width: `${(width * zoom).toFixed(0)}px`,
-            height: `${(height * zoom).toFixed(0)}px`,
-          }}
-          width={width}
-          height={height}
-        ></canvas>
-        {computing && <LoadingOverlay />}
-      </div>
-    );
-  },
-);
-ImageCanvas.displayName = 'ImageCanvas';
-
-function LayerPanel({
-  layers,
-  setLayers,
-  selectedLayerID,
-  setSelectedLayerID,
-  dragConstraints,
-}: {
-  layers: Layers;
-  setLayers: React.Dispatch<React.SetStateAction<Layers>>;
-  selectedLayerID: string | null;
-  setSelectedLayerID: React.Dispatch<React.SetStateAction<string | null>>;
-  dragConstraints: React.RefObject<HTMLElement>;
-}) {
-  const handleDelete = useCallback(
-    (targetId: string) => {
-      setLayers((layers) => layers.filter(({id}) => id !== targetId));
-    },
-    [setLayers],
-  );
-
-  return (
-    <Panel
-      title="Layers"
-      icon={<MdOutlineLayers />}
-      dragConstraints={dragConstraints}
-      className="w-[20ch]"
-    >
-      <Reorder.Group
-        axis="y"
-        values={layers}
-        onReorder={setLayers}
-        className="flex-1 overflow-hidden flex flex-col"
-      >
-        {layers.map((layer) => (
-          <Reorder.Item key={layer.id} id={layer.id} value={layer}>
-            <div
-              className={clsx(
-                'transition-colors flex flex-row items-stretch',
-                layer.id === selectedLayerID
-                  ? 'bg-brand-400 text-background'
-                  : 'hover:bg-brand-400/20',
-              )}
-            >
-              <button
-                onClick={() => setSelectedLayerID(layer.id)}
-                className="flex-1 p-2 flex gap-2 items-center"
-              >
-                <MdOutlineDragIndicator />
-                <div className="flex-1">{layer.pluginID as string}</div>
-              </button>
-              <div className="p-2 flex items-center">
-                <button
-                  onClick={() => handleDelete(layer.id)}
-                  className="bg-red-400 text-background text-lg rounded-lg p-0.5"
-                >
-                  <MdDeleteForever />
-                </button>
-              </div>
-            </div>
-          </Reorder.Item>
-        ))}
-      </Reorder.Group>
-    </Panel>
-  );
-}
 
 export function ReacjinEditor() {
   const canvasRef = useRef<HTMLCanvasElement>(null);

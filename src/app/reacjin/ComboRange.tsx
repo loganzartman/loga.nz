@@ -15,9 +15,9 @@ export function ComboRange({
 }) {
   // a text input and range input that edit the same value
   return (
-    <div className="flex flex-row gap-2">
+    <div className="flex flex-row items-center gap-2">
       <input
-        className="flex-1"
+        className="flex-1 range range-primary"
         type="range"
         value={value}
         onChange={(e) => onChange(e.currentTarget.valueAsNumber)}
@@ -26,6 +26,7 @@ export function ComboRange({
         step={step}
       />
       <input
+        className="input-sm"
         type="number"
         value={value}
         onChange={(e) => onChange(e.currentTarget.valueAsNumber)}

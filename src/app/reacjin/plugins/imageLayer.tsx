@@ -1,3 +1,5 @@
+'use client';
+
 import {drawStyledText} from 'canvas-styled-text';
 
 import {PanelRow} from '@/app/reacjin/PanelRow';

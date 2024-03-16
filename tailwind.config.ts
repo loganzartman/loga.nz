@@ -89,6 +89,7 @@ const config = {
 } satisfies Config;
 
 config.daisyui = {
+  base: false,
   themes: [
     {
       custom: {

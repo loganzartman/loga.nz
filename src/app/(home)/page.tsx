@@ -6,7 +6,7 @@ import Cat from '@/image/cat.svg';
 
 export default function Home() {
   return (
-    <div className="">
+    <>
       <div className="mt-[calc(max(0,-50vw-100%))] relative flex overflow-hidden justify-center items-center">
         <BannerAnimated
           alt="The outlines of a geometric L and Z on a backdrop of twinkling stars"
@@ -50,6 +50,6 @@ export default function Home() {
           </Link>
         </div>
       </main>
-    </div>
+    </>
   );
 }

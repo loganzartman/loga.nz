@@ -31,9 +31,9 @@ const mono = DM_Mono({
 
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
-    <html lang="en" className="min-h-full">
+    <html lang="en">
       <body
-        className={`${display.variable} ${sans.variable} ${serif.variable} ${mono.variable} font-sans font-normal min-h-full`}
+        className={`${display.variable} ${sans.variable} ${serif.variable} ${mono.variable} font-sans font-normal`}
       >
         {children}
       </body>

@@ -1,3 +1,5 @@
+import {drawStyledText} from 'canvas-styled-text';
+
 import {PanelRow} from '@/app/reacjin/PanelRow';
 import {LayerPlugin} from '@/app/reacjin/plugins/types';
 
@@ -9,18 +11,53 @@ export type ImageLayerComputed = {
   image: ImageBitmap;
 };
 
+async function createErrorImage(w: number, h: number, text: string) {
+  const canvas = new OffscreenCanvas(w, h);
+  const ctx = canvas.getContext('2d')!;
+  ctx.fillStyle = 'red';
+  ctx.strokeStyle = 'black';
+  ctx.lineWidth = 4;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = `${(w / Math.max(1, text.length)).toFixed(0)}px monospace`;
+  drawStyledText(ctx, text, w / 2, h / 2);
+
+  const image = await createImageBitmap(canvas);
+  return image;
+}
+
 export const imageLayerPlugin: LayerPlugin<
   ImageLayerOptions,
   ImageLayerComputed
 > = {
   compute: async ({src}) => {
     const data = await fetch(src, {credentials: 'omit'});
-    const blob = await data.blob();
-    const image = await createImageBitmap(blob);
-    return {
-      computed: {image},
-      cleanup: () => image.close(),
-    };
+    if (!data.ok) {
+      const image = await createErrorImage(256, 256, 'Bad URL');
+      return {
+        computed: {image},
+        cleanup: () => {
+          image.close();
+        },
+      };
+    }
+
+    try {
+      const blob = await data.blob();
+      const image = await createImageBitmap(blob);
+      return {
+        computed: {image},
+        cleanup: () => image.close(),
+      };
+    } catch (e) {
+      const image = await createErrorImage(256, 256, 'Bad Image');
+      return {
+        computed: {image},
+        cleanup: () => {
+          image.close();
+        },
+      };
+    }
   },
 
   draw: ({ctx, computed: {image}}) => {

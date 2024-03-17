@@ -29,6 +29,7 @@ import {Panel} from '@/app/reacjin/Panel';
 import {PanelProvider} from '@/app/reacjin/PanelContext';
 import {pluginByID} from '@/app/reacjin/plugins/registry';
 import {Toolbar} from '@/app/reacjin/Toolbar';
+import {useUndoable} from '@/app/reacjin/useUndoable';
 import {MotionDiv} from '@/lib/framer-motion';
 
 export default function ReacjinEditor() {
@@ -36,59 +37,47 @@ export default function ReacjinEditor() {
   const editorAreaRef = useRef<HTMLDivElement>(null);
   const [imageSize, setImageSize] = useState([256, 256]);
   const [zoom, setZoom] = useState(1);
-  const [layers, _setLayers] = useState<Layers>(() => [
-    createLayer('text', {
-      text: 'Hello, world!',
-      autoFitText: false,
-      fontSize: 32,
-      fontFamily: 'sans-serif',
-      fillStyle: 'white',
-      strokeStyle: 'black',
-      strokeWidth: 2,
-      textAlign: 'center',
-      lineHeight: 1.1,
-    }),
-    createLayer('image', {src: 'https://picsum.photos/256'}),
-  ]);
-  const [undoStack, setUndoStack] = useState<Layers[]>([]);
-  const [redoStack, setRedoStack] = useState<Layers[]>([]);
+  const {
+    state: layers,
+    setState: setLayers,
+    undo,
+    redo,
+  } = useUndoable(
+    useState<Layers>(() => [
+      createLayer('text', {
+        text: 'Hello, world!',
+        autoFitText: false,
+        fontSize: 32,
+        fontFamily: 'sans-serif',
+        fillStyle: 'white',
+        strokeStyle: 'black',
+        strokeWidth: 2,
+        textAlign: 'center',
+        lineHeight: 1.1,
+      }),
+      createLayer('image', {src: 'https://picsum.photos/256'}),
+    ]),
+  );
   const [selectedLayerID, setSelectedLayerID] = useState<string | null>(null);
   const [computedCache] = useState(() => new ComputedCache());
   const [computing, setComputing] = useState(false);
   const [dropping, setDropping] = useState(false);
-
-  const setLayers = useCallback(
-    (action: React.SetStateAction<Layers>) => {
-      setUndoStack((undoStack) => [...undoStack, layers]);
-      setRedoStack([]);
-      _setLayers((layers) =>
-        typeof action === 'function' ? action(layers) : action,
-      );
-    },
-    [layers],
-  );
 
   useEffect(() => {
     function handler(event: KeyboardEvent) {
       if (event.repeat) return;
       if (event.key === 'z' && (event.metaKey || event.ctrlKey)) {
         event.preventDefault();
-        if (undoStack.length < 1) return;
-        _setLayers(undoStack[undoStack.length - 1]);
-        setUndoStack((undoStack) => undoStack.slice(0, -1));
-        setRedoStack((redoStack) => [...redoStack, layers]);
+        undo();
       }
       if (event.key === 'y' && (event.metaKey || event.ctrlKey)) {
         event.preventDefault();
-        if (redoStack.length < 1) return;
-        _setLayers(redoStack[redoStack.length - 1]);
-        setRedoStack((redoStack) => redoStack.slice(0, -1));
-        setUndoStack((undoStack) => [...undoStack, layers]);
+        redo();
       }
     }
     document.addEventListener('keydown', handler, false);
     return () => document.removeEventListener('keydown', handler, false);
-  }, [layers, redoStack, undoStack]);
+  }, [layers, redo, undo]);
 
   const setZoomToSize = useCallback(
     (size: number) => {

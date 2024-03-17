@@ -36,7 +36,7 @@ export default function ReacjinEditor() {
   const editorAreaRef = useRef<HTMLDivElement>(null);
   const [imageSize, setImageSize] = useState([256, 256]);
   const [zoom, setZoom] = useState(1);
-  const [layers, setLayers] = useState<Layers>(() => [
+  const [layers, _setLayers] = useState<Layers>(() => [
     createLayer('text', {
       text: 'Hello, world!',
       autoFitText: false,
@@ -50,10 +50,45 @@ export default function ReacjinEditor() {
     }),
     createLayer('image', {src: 'https://picsum.photos/256'}),
   ]);
+  const [undoStack, setUndoStack] = useState<Layers[]>([]);
+  const [redoStack, setRedoStack] = useState<Layers[]>([]);
   const [selectedLayerID, setSelectedLayerID] = useState<string | null>(null);
   const [computedCache] = useState(() => new ComputedCache());
   const [computing, setComputing] = useState(false);
   const [dropping, setDropping] = useState(false);
+
+  const setLayers = useCallback(
+    (action: React.SetStateAction<Layers>) => {
+      setUndoStack((undoStack) => [...undoStack, layers]);
+      setRedoStack([]);
+      _setLayers((layers) =>
+        typeof action === 'function' ? action(layers) : action,
+      );
+    },
+    [layers],
+  );
+
+  useEffect(() => {
+    function handler(event: KeyboardEvent) {
+      if (event.repeat) return;
+      if (event.key === 'z' && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault();
+        if (undoStack.length < 1) return;
+        _setLayers(undoStack[undoStack.length - 1]);
+        setUndoStack((undoStack) => undoStack.slice(0, -1));
+        setRedoStack((redoStack) => [...redoStack, layers]);
+      }
+      if (event.key === 'y' && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault();
+        if (redoStack.length < 1) return;
+        _setLayers(redoStack[redoStack.length - 1]);
+        setRedoStack((redoStack) => redoStack.slice(0, -1));
+        setUndoStack((undoStack) => [...undoStack, layers]);
+      }
+    }
+    document.addEventListener('keydown', handler, false);
+    return () => document.removeEventListener('keydown', handler, false);
+  }, [layers, redoStack, undoStack]);
 
   const setZoomToSize = useCallback(
     (size: number) => {
@@ -72,50 +107,56 @@ export default function ReacjinEditor() {
     setDropping(false);
   }, []);
 
-  const handleDrop = useCallback((event: React.DragEvent) => {
-    event.preventDefault();
+  const handleDrop = useCallback(
+    (event: React.DragEvent) => {
+      event.preventDefault();
 
-    // if the dropped thing has an image, create an image layer
-    const file = event.dataTransfer.files[0];
-    if (file?.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const src = event.target?.result as string;
-        setLayers((layers) => [createImageLayer({src}), ...layers]);
-      };
-      reader.readAsDataURL(file);
-      setDropping(false);
-      return;
-    }
-
-    // if the dropped thing has text, create a text layer
-    const text = event.dataTransfer.getData('text');
-    if (text) {
-      setLayers((layers) => [createTextLayer({text}), ...layers]);
-      setDropping(false);
-      return;
-    }
-  }, []);
-
-  const handlePaste = useCallback((event: ClipboardEvent) => {
-    if (!event.clipboardData) return;
-    if (event.clipboardData.files.length > 0) {
-      const file = event.clipboardData.files[0];
-      if (file.type.startsWith('image/')) {
+      // if the dropped thing has an image, create an image layer
+      const file = event.dataTransfer.files[0];
+      if (file?.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = (event) => {
           const src = event.target?.result as string;
           setLayers((layers) => [createImageLayer({src}), ...layers]);
         };
         reader.readAsDataURL(file);
+        setDropping(false);
+        return;
       }
-    } else {
-      const text = event.clipboardData.getData('text');
+
+      // if the dropped thing has text, create a text layer
+      const text = event.dataTransfer.getData('text');
       if (text) {
         setLayers((layers) => [createTextLayer({text}), ...layers]);
+        setDropping(false);
+        return;
       }
-    }
-  }, []);
+    },
+    [setLayers],
+  );
+
+  const handlePaste = useCallback(
+    (event: ClipboardEvent) => {
+      if (!event.clipboardData) return;
+      if (event.clipboardData.files.length > 0) {
+        const file = event.clipboardData.files[0];
+        if (file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            const src = event.target?.result as string;
+            setLayers((layers) => [createImageLayer({src}), ...layers]);
+          };
+          reader.readAsDataURL(file);
+        }
+      } else {
+        const text = event.clipboardData.getData('text');
+        if (text) {
+          setLayers((layers) => [createTextLayer({text}), ...layers]);
+        }
+      }
+    },
+    [setLayers],
+  );
 
   useEffect(() => {
     document.addEventListener('paste', handlePaste);
@@ -130,7 +171,7 @@ export default function ReacjinEditor() {
         ),
       );
     },
-    [],
+    [setLayers],
   );
 
   const handleDownloadImage = useCallback(() => {
@@ -145,7 +186,7 @@ export default function ReacjinEditor() {
 
   const handleAddImage = useCallback(() => {
     setLayers((layers) => [createImageLayer({}), ...layers]);
-  }, []);
+  }, [setLayers]);
 
   const handleAddText = useCallback(() => {
     setLayers((layers) => [
@@ -154,11 +195,11 @@ export default function ReacjinEditor() {
       }),
       ...layers,
     ]);
-  }, []);
+  }, [setLayers]);
 
   const handleAddFill = useCallback(() => {
     setLayers((layers) => [createFillLayer({fillStyle: 'purple'}), ...layers]);
-  }, []);
+  }, [setLayers]);
 
   // TODO: clean up all computed results on unmount
 

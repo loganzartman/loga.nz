@@ -15,6 +15,7 @@ import {useLocalStorage} from 'usehooks-ts';
 import {Button} from '@/app/reacjin/Button';
 import {ComboRange} from '@/app/reacjin/ComboRange';
 import {ComputedCache} from '@/app/reacjin/ComputedCache';
+import {ExportDialog} from '@/app/reacjin/ExportDialog';
 import {FAB} from '@/app/reacjin/FAB';
 import {ImageCanvas} from '@/app/reacjin/ImageCanvas';
 import {
@@ -63,6 +64,7 @@ export default function ReacjinEditor() {
   const [computedCache] = useState(() => new ComputedCache());
   const [computing, setComputing] = useState(false);
   const [dropping, setDropping] = useState(false);
+  const [showExportDialog, setShowExportDialog] = useState(false);
 
   useEffect(() => {
     function handler(event: KeyboardEvent) {
@@ -159,16 +161,6 @@ export default function ReacjinEditor() {
     },
     [setLayers],
   );
-
-  const handleDownloadImage = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const url = canvas.toDataURL('image/png');
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'reacji.png';
-    a.click();
-  }, []);
 
   const handleAddImage = useCallback(() => {
     setLayers((layers) => [createImageLayer({}), ...layers]);
@@ -294,7 +286,7 @@ export default function ReacjinEditor() {
             </div>
           </div>
         </div>
-        <FAB onClick={handleDownloadImage}>
+        <FAB onClick={() => setShowExportDialog(true)}>
           <MdOutlineFileDownload />
         </FAB>
         <AnimatePresence>
@@ -314,6 +306,12 @@ export default function ReacjinEditor() {
             </MotionDiv>
           )}
         </AnimatePresence>
+        <ExportDialog
+          isOpen={showExportDialog}
+          handleClose={() => setShowExportDialog(false)}
+          canvas={canvasRef.current}
+          filename="reacji"
+        />
       </div>
     </PanelProvider>
   );

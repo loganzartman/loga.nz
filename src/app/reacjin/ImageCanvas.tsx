@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useImperativeHandle, useRef} from 'react';
+import {useEffect, useImperativeHandle, useState} from 'react';
 import React from 'react';
 
 import {ComputedCache} from '@/app/reacjin/ComputedCache';
@@ -28,7 +28,8 @@ export const ImageCanvas = React.forwardRef(
     },
     ref,
   ) => {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const canvasRef = React.useRef<HTMLCanvasElement>(null);
+    const [dataURL, setDataURL] = useState<string>('');
 
     useImperativeHandle(ref, () => canvasRef.current);
 
@@ -45,6 +46,8 @@ export const ImageCanvas = React.forwardRef(
         const {computed} = computedCache.get(layer.pluginID, options) ?? {};
         plugin.draw({ctx, options, computed});
       }
+
+      setDataURL(canvasRef.current.toDataURL());
     }, [computing, computedCache, layers]);
 
     return (
@@ -53,14 +56,19 @@ export const ImageCanvas = React.forwardRef(
       >
         <canvas
           ref={canvasRef}
+          width={width}
+          height={height}
+          className="hidden"
+        ></canvas>
+        <img
+          src={dataURL}
           className={`${styles.checkerBackground}`}
           style={{
             width: `${(width * zoom).toFixed(0)}px`,
             height: `${(height * zoom).toFixed(0)}px`,
           }}
-          width={width}
-          height={height}
-        ></canvas>
+          alt="Output image"
+        />
         {computing && <LoadingOverlay />}
       </div>
     );

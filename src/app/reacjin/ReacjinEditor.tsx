@@ -10,6 +10,7 @@ import {
   MdOutlineImage,
   MdOutlineTextFields,
 } from 'react-icons/md';
+import {useLocalStorage} from 'usehooks-ts';
 
 import {Button} from '@/app/reacjin/Button';
 import {ComboRange} from '@/app/reacjin/ComboRange';
@@ -43,7 +44,7 @@ export default function ReacjinEditor() {
     undo,
     redo,
   } = useUndoable(
-    useState<Layers>(() => [
+    useLocalStorage<Layers>('reacjin.project.layers', () => [
       createLayer('text', {
         text: 'Hello, world!',
         autoFitText: false,

@@ -124,8 +124,8 @@ export default function ReacjinEditor() {
     [setLayers],
   );
 
-  const handlePaste = useCallback(
-    (event: ClipboardEvent) => {
+  useEffect(() => {
+    const handlePaste = (event: ClipboardEvent) => {
       if (!event.clipboardData) return;
       if (event.clipboardData.files.length > 0) {
         const file = event.clipboardData.files[0];
@@ -143,14 +143,10 @@ export default function ReacjinEditor() {
           setLayers((layers) => [createTextLayer({text}), ...layers]);
         }
       }
-    },
-    [setLayers],
-  );
-
-  useEffect(() => {
+    };
     document.addEventListener('paste', handlePaste);
     return () => document.removeEventListener('paste', handlePaste);
-  }, [handlePaste]);
+  }, [setLayers]);
 
   const handleSetOptions = useCallback(
     (targetLayer: Layer<string>, options: unknown) => {

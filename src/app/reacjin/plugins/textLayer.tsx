@@ -1,7 +1,6 @@
 import {
   drawStyledText,
   measureStyledText,
-  StyledText,
   StyledTextStyle,
 } from 'canvas-styled-text';
 
@@ -13,6 +12,7 @@ export type TextLayerOptions = {
   autoFitText: boolean;
   fontSize: number;
   fontFamily: string;
+  fontWeight: number;
   fillStyle: string;
   strokeStyle: string;
   strokeWidth: number;
@@ -20,30 +20,36 @@ export type TextLayerOptions = {
   lineHeight: number;
 };
 
+const getStyle = (options: TextLayerOptions): StyledTextStyle => ({
+  font: `${options.fontWeight} ${options.fontSize}px ${options.fontFamily}`,
+  fill: options.fillStyle,
+  stroke: options.strokeStyle,
+  strokeWidth: options.strokeWidth,
+  align: options.textAlign,
+  baseline: 'middle',
+  lineHeight: options.lineHeight,
+});
+
 function getBestFitFontSize(
   ctx: CanvasRenderingContext2D,
-  text: StyledText,
-  baseStyle: StyledTextStyle,
-  fontFamily: string,
+  options: TextLayerOptions,
   fontSize: number,
   desiredWidth: number,
   maxSteps: number = 8,
   minSize: number = 8,
   maxSize: number = ctx.canvas.width,
 ): number {
-  console.log(fontSize, maxSteps);
   if (maxSteps <= 0) return fontSize;
-  const metrics = measureStyledText(ctx, text, {
-    ...baseStyle,
-    font: `${fontSize.toFixed(1)}px ${fontFamily}`,
-  });
+  const metrics = measureStyledText(
+    ctx,
+    options.text,
+    getStyle({...options, fontSize}),
+  );
   const width = metrics.width;
   if (width < desiredWidth)
     return getBestFitFontSize(
       ctx,
-      text,
-      baseStyle,
-      fontFamily,
+      options,
       fontSize + (maxSize - fontSize) * 0.5,
       desiredWidth,
       maxSteps - 1,
@@ -53,9 +59,7 @@ function getBestFitFontSize(
   else
     return getBestFitFontSize(
       ctx,
-      text,
-      baseStyle,
-      fontFamily,
+      options,
       fontSize + (minSize - fontSize) * 0.5,
       desiredWidth,
       maxSteps - 1,
@@ -63,16 +67,6 @@ function getBestFitFontSize(
       fontSize,
     );
 }
-
-const getStyle = (options: TextLayerOptions): StyledTextStyle => ({
-  font: `${options.fontSize}px ${options.fontFamily}`,
-  fill: options.fillStyle,
-  stroke: options.strokeStyle,
-  strokeWidth: options.strokeWidth,
-  align: options.textAlign,
-  baseline: 'middle',
-  lineHeight: options.lineHeight,
-});
 
 export const textLayerPlugin: LayerPlugin<TextLayerOptions> = {
   draw: ({ctx, options}) => {
@@ -88,16 +82,8 @@ export const textLayerPlugin: LayerPlugin<TextLayerOptions> = {
   },
   UIPanel: ({ctx, options, setOptions}) => {
     if (options.autoFitText) {
-      const baseStyle = getStyle(options);
       const fontSize = Math.round(
-        getBestFitFontSize(
-          ctx,
-          options.text,
-          baseStyle,
-          options.fontFamily,
-          50,
-          ctx.canvas.width,
-        ),
+        getBestFitFontSize(ctx, options, 50, ctx.canvas.width),
       );
       if (fontSize !== options.fontSize) {
         setOptions({
@@ -153,6 +139,21 @@ export const textLayerPlugin: LayerPlugin<TextLayerOptions> = {
               setOptions({
                 ...options,
                 fontFamily: e.currentTarget.value,
+              })
+            }
+          />
+        </PanelRow>
+        <PanelRow label="font weight">
+          <input
+            type="number"
+            value={options.fontWeight}
+            min={100}
+            step={100}
+            max={900}
+            onChange={(e) =>
+              setOptions({
+                ...options,
+                fontWeight: e.currentTarget.valueAsNumber,
               })
             }
           />

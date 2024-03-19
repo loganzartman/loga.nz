@@ -22,6 +22,9 @@ export const createLayer = <ID extends PluginID>(
   options: PluginOptions<PluginByID<ID>>,
 ): Layer<ID> => ({id: uuid(), pluginID, options});
 
+export const cloneLayer = <ID extends PluginID>(layer: Layer<ID>): Layer<ID> =>
+  createLayer(layer.pluginID, layer.options);
+
 export const createFillLayer = (
   options?: Partial<FillLayerOptions>,
 ): Layer<'fill'> => createLayer('fill', {fillStyle: 'transparent', ...options});

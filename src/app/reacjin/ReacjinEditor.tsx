@@ -110,7 +110,9 @@ export default function ReacjinEditor() {
         const reader = new FileReader();
         reader.onload = (event) => {
           const src = event.target?.result as string;
-          setLayers((layers) => [createImageLayer({src}), ...layers]);
+          const newLayer = createImageLayer({src});
+          setLayers((layers) => [newLayer, ...layers]);
+          setSelectedLayerID(newLayer.id);
         };
         reader.readAsDataURL(file);
         setDropping(false);
@@ -120,7 +122,9 @@ export default function ReacjinEditor() {
       // if the dropped thing has text, create a text layer
       const text = event.dataTransfer.getData('text');
       if (text) {
-        setLayers((layers) => [createTextLayer({text}), ...layers]);
+        const newLayer = createTextLayer({text});
+        setLayers((layers) => [newLayer, ...layers]);
+        setSelectedLayerID(newLayer.id);
         setDropping(false);
         return;
       }
@@ -137,14 +141,18 @@ export default function ReacjinEditor() {
           const reader = new FileReader();
           reader.onload = (event) => {
             const src = event.target?.result as string;
-            setLayers((layers) => [createImageLayer({src}), ...layers]);
+            const newLayer = createImageLayer({src});
+            setLayers((layers) => [newLayer, ...layers]);
+            setSelectedLayerID(newLayer.id);
           };
           reader.readAsDataURL(file);
         }
       } else {
         const text = event.clipboardData.getData('text');
         if (text) {
-          setLayers((layers) => [createTextLayer({text}), ...layers]);
+          const newLayer = createTextLayer({text});
+          setLayers((layers) => [newLayer, ...layers]);
+          setSelectedLayerID(newLayer.id);
         }
       }
     };
@@ -164,20 +172,21 @@ export default function ReacjinEditor() {
   );
 
   const handleAddImage = useCallback(() => {
-    setLayers((layers) => [createImageLayer({}), ...layers]);
+    const newLayer = createImageLayer({});
+    setLayers((layers) => [newLayer, ...layers]);
+    setSelectedLayerID(newLayer.id);
   }, [setLayers]);
 
   const handleAddText = useCallback(() => {
-    setLayers((layers) => [
-      createTextLayer({
-        text: 'Hello, world!',
-      }),
-      ...layers,
-    ]);
+    const newLayer = createTextLayer({});
+    setLayers((layers) => [newLayer, ...layers]);
+    setSelectedLayerID(newLayer.id);
   }, [setLayers]);
 
   const handleAddFill = useCallback(() => {
-    setLayers((layers) => [createFillLayer({fillStyle: 'purple'}), ...layers]);
+    const newLayer = createFillLayer({});
+    setLayers((layers) => [newLayer, ...layers]);
+    setSelectedLayerID(newLayer.id);
   }, [setLayers]);
 
   // TODO: clean up all computed results on unmount

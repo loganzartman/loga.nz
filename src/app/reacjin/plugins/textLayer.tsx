@@ -4,6 +4,7 @@ import {
   StyledTextStyle,
 } from 'canvas-styled-text';
 
+import {allFonts, FontPicker} from '@/app/reacjin/FontPicker';
 import {PanelRow} from '@/app/reacjin/PanelRow';
 import {LayerPlugin} from '@/app/reacjin/plugins/types';
 
@@ -11,7 +12,7 @@ export type TextLayerOptions = {
   text: string;
   autoFitText: boolean;
   fontSize: number;
-  fontFamily: string;
+  fontName: string;
   fontWeight: number;
   fillStyle: string;
   strokeStyle: string;
@@ -20,15 +21,26 @@ export type TextLayerOptions = {
   lineHeight: number;
 };
 
-const getStyle = (options: TextLayerOptions): StyledTextStyle => ({
-  font: `${options.fontWeight} ${options.fontSize}px ${options.fontFamily}`,
-  fill: options.fillStyle,
-  stroke: options.strokeStyle,
-  strokeWidth: options.strokeWidth,
-  align: options.textAlign,
-  baseline: 'middle',
-  lineHeight: options.lineHeight,
-});
+const getFontFamily = (fontName: string): string => {
+  if (fontName in allFonts) {
+    const key = fontName as keyof typeof allFonts;
+    return allFonts[key].style.fontFamily;
+  }
+  return fontName;
+};
+
+const getStyle = (options: TextLayerOptions) =>
+  ({
+    font: `${options.fontWeight} ${options.fontSize}px ${getFontFamily(
+      options.fontName,
+    )}`,
+    fill: options.fillStyle,
+    stroke: options.strokeStyle,
+    strokeWidth: options.strokeWidth,
+    align: options.textAlign,
+    baseline: 'middle',
+    lineHeight: options.lineHeight,
+  }) satisfies StyledTextStyle;
 
 function getBestFitFontSize(
   ctx: CanvasRenderingContext2D,
@@ -69,6 +81,16 @@ function getBestFitFontSize(
 }
 
 export const textLayerPlugin: LayerPlugin<TextLayerOptions> = {
+  async compute(options) {
+    const style = getStyle(options);
+    try {
+      await document.fonts.load(style.font);
+    } catch (e) {
+      console.error('Failed to load font', e);
+    }
+    return {computed: {}};
+  },
+
   draw: ({ctx, options}) => {
     const baseStyle = getStyle(options);
     ctx.lineJoin = 'round';
@@ -80,6 +102,7 @@ export const textLayerPlugin: LayerPlugin<TextLayerOptions> = {
       baseStyle,
     );
   },
+
   UIPanel: ({ctx, options, setOptions}) => {
     if (options.autoFitText) {
       const fontSize = Math.round(
@@ -132,15 +155,9 @@ export const textLayerPlugin: LayerPlugin<TextLayerOptions> = {
           />
         </PanelRow>
         <PanelRow label="font family">
-          <input
-            type="text"
-            value={options.fontFamily}
-            onChange={(e) =>
-              setOptions({
-                ...options,
-                fontFamily: e.currentTarget.value,
-              })
-            }
+          <FontPicker
+            value={options.fontName}
+            onChange={(fontName) => setOptions({...options, fontName})}
           />
         </PanelRow>
         <PanelRow label="font weight">

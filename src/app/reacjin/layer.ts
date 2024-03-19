@@ -32,7 +32,8 @@ export const createTextLayer = (
   createLayer('text', {
     autoFitText: false,
     fillStyle: 'white',
-    fontFamily: 'sans-serif',
+    fontName: 'sans-serif',
+    fontWeight: 700,
     fontSize: 24,
     strokeStyle: 'black',
     strokeWidth: 4,

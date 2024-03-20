@@ -1,0 +1,250 @@
+---
+title: DIY Suspense in React
+description: writing code that suspends to make your components feel synchronous
+tags:
+  - React
+  - Suspense
+  - hooks
+date: 2023-11-04T12:00:00
+---
+
+# DIY Suspense in React
+
+**Not familiar with Suspense?** Check out my [two-minute intro-by-example](/blog/suspense-in-2-minutes).
+
+When I started learning the new features in [React 18][react 18], I was pretty interested in [Suspense][react suspense docs]. Suspense [promises][suspense post] to make "UI loading state a first class declarative concept in React". In other words, you tell React what to show when something is loading. You don't have to repeat yourself for every network request or image or anything else that could be loading.
+
+```tsx
+function MyPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      {/* If anything in any of these components is loading, we'll see the
+      loading spinner! */}
+      <MyHeader />
+      <MyContent />
+      <MyFooter />
+    </Suspense>
+  );
+}
+```
+
+Even after reading the docs, I was still curious about something: how do you suspend? In other words, what triggers the fallback state in a `<Suspense>` boundary? The docs dance around this part; they don't even define the component that suspends.
+
+I think that the React team [doesn't intend][suspense in data frameworks] for most people to write code that suspends. Instead, you'll use libraries that are already integrated with Suspense. In that case, all you need to do is handle the fallback states with the `<Suspense>` component. They likely have thought a lot about this and have good reasons for it!
+
+But this isn't super satisfying to me. It feels like I've only seen half the API. So here's a very basic overview of the suspending part of it. Even if this isn't important to know most of the time, I think it's helped my mental model to understand the basics of how it works. Keep in mind that Suspense is based on [promises][promise], so you'll need to know how they work first.
+
+## When to suspend
+
+Let's start with a promise. This promise waits for one second and then resolves `'Hello world!'`:
+
+```tsx
+const helloPromise = new Promise<string>((resolve) => {
+  setTimeout(() => {
+    resolve('Hello world!');
+  }, 1000);
+});
+```
+
+Without Suspense, we can hook the promise into the React lifecycle using [state][react state].
+
+There are three possible states of the promise:
+
+1. Loading (or "pending")
+2. Resolved
+3. Errored
+
+Let's create a hook that accepts a promise and maps _its_ state to _React_ state:
+
+```tsx
+import {useState, useEffect, useMemo} from 'react';
+
+function usePromise<T>(promise: Promise<T>): {
+  loading: boolean;
+  result: T | null;
+  error: any;
+} {
+  const [loading, setLoading] = useState(true);
+  const [result, setResult] = useState<T | null>(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    setLoading(true);
+    promise
+      .then((result) => {
+        setResult(result);
+        setLoading(false);
+      })
+      .catch((error) => {
+        setError(error);
+        setLoading(false);
+      });
+  }, [promise]);
+
+  return useMemo(() => ({loading, result, error}), [loading, result, error]);
+}
+```
+
+<Admonition type="note">
+
+I used `useMemo()` here because I'm returning an object: `{loading, result, error}`. Every time this hook renders, the identity of this object changes, and might cause consumers of this hook to rerender unnecessarily. Since it's memoized, it will only change when its contents change.
+
+</Admonition>
+
+Now we can use it in a component:
+
+```tsx
+export default function App() {
+  return <MyComponent promise={helloPromise} />;
+}
+
+function MyComponent({promise}) {
+  const {loading, result, error} = usePromise(promise);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error!</div>;
+  return <div>Promise says: {result}</div>;
+}
+```
+
+[View in sandbox](https://codesandbox.io/s/no-suspense-f53xct)
+
+If we wanted to do this with Suspense, how would that look?
+
+## How to suspend
+
+Let's try to replace the `usePromise()` hook, using Suspense instead of React state. We need to handle the same three Promise states: loading, resolved, and errored. Let's start with the code:
+
+```tsx
+import {Suspense} from 'react';
+import {ErrorBoundary} from 'react-error-boundary';
+
+const promises = new WeakSet();
+const results = new WeakMap();
+const errors = new WeakMap();
+
+function readPromise<T>(promise: Promise<T>): T {
+  if (!promises.has(promise)) {
+    promise.then((result) => results.set(promise, result));
+    promise.catch((error) => errors.set(promise, error));
+    promises.add(promise);
+  }
+
+  const result = results.get(promise);
+  if (result) return result;
+
+  const error = errors.get(promise);
+  if (error) throw error;
+
+  throw promise;
+}
+```
+
+And here's the updated usage:
+
+```tsx
+export default function App() {
+  return (
+    <ErrorBoundary fallback={<div>Error</div>}>
+      <Suspense fallback={<div>Loading...</div>}>
+        <MyComponent promise={helloPromise} />
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
+
+function MyComponent({promise}: {promise: Promise<string>}) {
+  const result = readPromise(promise);
+  return <div>Promise says: {result}</div>;
+}
+```
+
+[View in sandbox](https://codesandbox.io/s/diy-suspense-ppgqkc)
+
+This is a little different. There's no more React state. In fact, `readPromise()` isn't even a hook! It doesn't need to be.
+
+We use global stores, `results` and `errors`, to track the outcome of the Promise. We use a set, `promises`, to attach our callbacks only once.
+
+Here's the key part: there are three possible outcomes when we call this function. They mirror our three promise states:
+
+1. resolved - `return result`
+2. errored - `throw error`
+3. loading - `throw promise`
+
+The special part is the last one: `throw promise`. When a Promise is thrown during a React render:
+
+1. the Promise propagates up to the nearest `<Suspense>` boundary
+2. React catches the Promise
+3. the children of the `<Suspense>` component are replaced with the `fallback`
+4. rendering continues outside of the `<Suspense>` boundary
+
+In this way, it works very similarly to throwing an `Error` and catching it with an error boundary. But, there's a bit more to it.
+
+## Suspense and the lifecycle
+
+Eventually we want the component to _un_-suspend. When React catches the Promise in a `<Suspense>` boundary, it calls `.then()` to track when the Promise resolves. When the Promise resolves, React re-renders all the children of the `<Suspense>` boundary.
+
+After a component throws, React doesn't have any magic way to jump back to where the render left off. Instead, it simply re-renders the entire component from scratch. Since suspending can interrupt rendering before all hooks have run, React can't maintain any of the state from the incomplete render. So, when a component is un-suspended, it's like it's remounted.
+
+If the suspending code is implemented correctly, it will not throw the Promise once the promise has resolved. This allows the rendering to complete, and the component to un-suspend.
+
+## TL;DR
+
+To suspend, we throw a Promise. React catches the Promise at the nearest `<Suspense>` boundary. The children of the `<Suspense>` component are temporarily replaced with its `fallback` tree. When the Promise resolves, React rerenders all the children of the `<Suspense>` boundary. This time, we don't throw the Promise, and the rendering completes.
+
+## Just use `use()`
+
+<Admonition type="note">
+
+`use()` is currently only available in the canary release of React (18.3).
+
+</Admonition>
+
+I think Suspense feels a bit like `await`. It makes a Promise look synchronous by interrupting rendering and restarting once the Promise resolves. I also mentioned how the React team is a bit hesitant about people writing their own code that suspends.
+
+Luckily, React provides a cool hook called `use`. Yep, just `use`. It's very straightforward:
+
+> `use` is a React Hook that lets you **read the value of a resource like a Promise** or context.
+> —[the docs][use docs]
+
+But it's actually more powerful than a hook, and closer to a regular function:
+
+> Unlike all other React Hooks, `use` can be called within loops and conditional statements like `if`. Like other React Hooks, the function that calls use must be a Component or Hook.
+
+To me, this looks like a Suspense-based analog to `await`!
+
+In our example from before, we could simply `use()` the Promise instead of suspending manually and dealing with state.
+
+Here's the example rewritten with `use`:
+
+```tsx
+export default function App() {
+  return (
+    <ErrorBoundary fallback={<div>Error</div>}>
+      <Suspense fallback={<div>Loading...</div>}>
+        <MyComponent promise={helloPromise} />
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
+
+function MyComponent({promise}) {
+  const result = use(promise);
+  return <div>Promise says: {result}</div>;
+}
+```
+
+[View in sandbox](https://codesandbox.io/s/use-suspense-jt3cq7)
+
+[promise]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
+[react 18]: https://react.dev/blog/2022/03/29/react-v18
+[suspense post]: https://react.dev/blog/2022/03/29/react-v18#new-suspense-features
+[react state]: https://react.dev/learn/state-a-components-memory
+[react suspense docs]: https://react.dev/reference/react/Suspense
+[suspense in data frameworks]: https://react.dev/blog/2022/03/29/react-v18#suspense-in-data-frameworks
+[simple sandbox]: https://codesandbox.io/s/simple-suspense-z2xhgv
+[detailed sandbox]: https://codesandbox.io/s/simple-data-fetching-2rl9jg
+[use sandbox]: https://codesandbox.io/s/use-data-fetching-7f3cvh
+[suspense component]: https://react.dev/reference/react/Suspense
+[error boundary]: https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary
+[use docs]: https://react.dev/reference/react/use

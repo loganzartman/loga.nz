@@ -1,0 +1,162 @@
+---
+title: Measuring line height with Canvas
+description: how to draw two lines of text just the right distance apart
+tags: [canvas, measureText, getComputedStyle]
+date: 2023-10-23T12:00:00
+---
+
+# Measuring line height with Canvas
+
+How far apart are two lines of text? That's a question that I had when I was writing [a text styling library][canvas-styled-text] for [HTML5 Canvas][canvas]. Specifically, one I had while trying to draw two lines of text.
+
+When we type some text in a document, line breaks just work™:
+
+Here's a line.  
+And here's another.
+
+Notice how there's a bit of space between those two lines. If you're using a word processor or [CSS][css] or whatever else, you can choose how much space. Typically, you pick a number like `1.25` or `1.5` or `2`, or maybe `2.1` if you're trying to finish writing a paper faster. That number is a _scaling factor_ of some base line height—e.g. `1.25 * BaseLineHeight`.
+
+I wanted to replicate this in some Canvas code I was writing. However, the [Canvas 2D API][canvas2d] only gave me this function:
+
+```tsx
+const context = canvas.getContext('2d');
+context.fillText('one line', x, y);
+```
+
+We can put line breaks in the text, but it just ignores them. To draw multiple lines, I needed to decide exactly what positions to put them in. To figure that out, I needed to know exactly how tall one line is.
+
+## font size?
+
+If you have the font size in pixels, you're in luck. At first, I thought that font size determined how tall each character was. It sort of does, but not exactly. The font size determines the size of the text's _em-square_. From what I understand, when a font designer draws a font, they pick an em-square. The size doesn't really matter to us, because the em-square will get scaled to whatever font size we pick. Then, the designer draws each character inside an em-square. Usually they draw inside the em-square but sometimes they extend a character outside of it (for example, when it has a big _descender_, like 𝑓).
+
+The key thing is that with a line height of `1`, each line of text is exactly the height of the em-square. And remember that font size determines the size of the em-square. So, if you've got a font size of `16px` and a line height of `1.5`, then the height of one line is `16px * 1.5 = 24px`.
+
+That's great! But when I wanted to write `fillText`-but-with-line-breaks, I didn't know the font size. That's because with Canvas 2D, you set the font, font size, and weight all at once! This is a CSS font value.
+
+```tsx
+context.font = '20px sans-serif bold';
+```
+
+I thought about parsing this string to get the `20px` out. Though it's [_possible_][css font], that didn't completely solve my problem. That's because the unit for size isn't always in pixels. These are also perfectly valid:
+
+```tsx
+context.font = '2em cursive';
+```
+
+```tsx
+context.font = 'bold italic larger serif';
+```
+
+The `em` unit is relative to the font size of the `canvas`' parent element! And what is `larger`! How much larger are we talking???
+
+So, even if I could have parsed the font size, it would have taken a lot more work to figure out how many pixels it actually was.
+
+## measureText in 2023
+
+Next, I looked at [`measureText`][measureText]. The Canvas API gives us `measureText` to determine [some _metrics_][TextMetrics] of a piece of text, given the current font.
+
+```tsx
+context.translate(50, 50);
+context.font = '20px sans-serif';
+
+// measure the text with the current font
+const metrics = context.measureText('hello world');
+
+// draw the text
+context.fillText('hello world', 0, 0);
+```
+
+At the time I was working on this, there were a few a few metrics provided:
+
+- `actualBoundingBox*` a pixel-precise bounding box that hugs the rendered text
+- `fontBoundingBox*` a bounding box for the _ascent_, _descent_, etc. defined by the font
+- `width` the _advance width_ of the text
+
+So, I could draw a bounding box around the text:
+
+```tsx
+context.drawRect(
+  -metrics.actualBoundingBoxLeft,
+  -metrics.actualBoundingBoxAscent,
+  metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight,
+  metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent,
+);
+```
+
+Or draw two strings as if they were concatenated:
+
+```tsx
+const helloWidth = context.measureText('hello').width;
+context.fillText('hello', 0, 0);
+context.fillText(' world', helloWidth, 0);
+```
+
+But I had no way of determining the line height. It's not the `actualBoundingBox`; that's larger, for example, for `f` than for `x`. It's also not `fontBoundingBox`; adding the ascent and the descent gives us... something that's not the size of the em-square. All of those measurements are independent.
+
+So this wasn't helpful at the time.
+
+## getComputedStyle
+
+The Canvas `font` setting is specified as a CSS `font` value. My next thought was to take advantage of this using [`window.getComputedStyle()`][getComputedStyle]. `getComputedStyle` is a function that takes an element and returns the [resolved values][resolved value] for each of its CSS properties. Importantly, this let me retrieve the computed `fontSize`, which is always in `px`.
+
+But to use `getComputedStyle`, I needed an element with the same font size as the Canvas context. I knew that my Canvas context was associated with a `canvas` element, which does have a font size. However, the `context.font` value is not the same as the CSS font property of the `canvas`. They have separate values. So, I needed to create a new element and set its `font` to the `font` of my context.
+
+```tsx
+const measureElem = document.createElement('div');
+measureElem.style.font = context.font;
+```
+
+Since CSS styles _cascade_ from parent elements to children, `getComputedStyle` only works for an element that is actually in the HTML document. That meant I also needed to place my new element into the document somewhere. I decided to insert the new element as a child of the `canvas` itself, so that it would inherit its styles. This would make relative font sizes, like `2em`, compute to the correct value.
+
+```tsx
+context.canvas.appendChild(measureElem);
+```
+
+I didn't want this element to actually show up anywhere on the page—I only needed it to take measurements. Normally, children of a `<canvas>` element [aren't rendered][alternative content]. But, I made sure by setting its `display` property to `'none'`. Keep in mind that this breaks the computation of some layout-related properties, but doesn't affect font.
+
+This worked great! Once a measurement element was inserted into the canvas, I only needed to apply the font size and then measure it. One final note is that the computed style object returned by `getComputedStyle()` is _live_. This means that it updates its computed values automatically when styles change. Here's a simplified version of my final code:
+
+```tsx
+const computedStyleCache: Map<HTMLElement, [HTMLElement, CSSStyleDeclaration]> =
+  new Map();
+
+function computeFontSizePx(context: CanvasRenderingContext2D): number {
+  const root = context.canvas;
+  let cached = computedStyleCache.get(root);
+
+  if (!cached) {
+    const el = document.createElement('div');
+    el.ariaHidden = 'true';
+    el.style.display = 'none';
+    root.appendChild(el);
+    cached = [el, window.getComputedStyle(el)];
+    computedStyleCache.set(root, cached);
+  }
+
+  const [el, computed] = cached;
+  el.style.font = ctx.font;
+  return Number.parseFloat(computed.fontSize);
+}
+```
+
+## emHeight
+
+Let's go back to `measureText` for a minute. Why can't it just return the size of the em-square and save us the trouble? It can, someday.
+
+`emHeightAscent` and `emHeightDescent` metrics have already [been introduced][emHeightAscent] into the HTML Living Standard. At the time of writing, they are exposed on `TextMetrics` in Firefox, but not in Chrome and other browsers. Once these are widely available, it will be possible to compute font size or em-height or line height as:
+
+```
+metrics.emHeightAscent + metrics.emHeightDescent
+```
+
+[canvas-styled-text]: https://github.com/loganzartman/canvas-styled-text
+[canvas]: https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API
+[canvas2d]: https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D
+[css]: https://developer.mozilla.org/en-US/docs/Web/CSS
+[css font]: https://developer.mozilla.org/en-US/docs/Web/CSS/font#formal_syntax
+[measureText]: https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/measureText
+[TextMetrics]: https://developer.mozilla.org/en-US/docs/Web/API/TextMetrics
+[getComputedStyle]: https://developer.mozilla.org/en-US/docs/Web/API/Window/getComputedStyle
+[resolved value]: https://developer.mozilla.org/en-US/docs/Web/CSS/resolved_value
+[alternative content]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/canvas#alternative_content
+[emHeightAscent]: https://html.spec.whatwg.org/multipage/canvas.html#dom-textmetrics-emheightascent

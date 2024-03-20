@@ -10,6 +10,7 @@
 html,
 body {
   margin: 0;
+  min-height: 100%;
   width: 100%;
   background: #1f1b20;
   color: #fff2dc;
@@ -21,4 +22,8 @@ body {
 
 pre code.hljs {
   padding: 0;
+}
+
+input {
+  background: none;
 }

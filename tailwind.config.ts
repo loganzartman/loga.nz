@@ -1,8 +1,11 @@
 import typography from '@tailwindcss/typography';
+import daisyUI from 'daisyui';
+import daisyuiThemes from 'daisyui/src/theming/themes';
 import type {Config} from 'tailwindcss';
 import {PluginUtils} from 'tailwindcss/types/config';
 
-const config: Config = {
+const config = {
+  plugins: [typography, daisyUI],
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -82,6 +85,19 @@ const config: Config = {
       }),
     },
   },
-  plugins: [typography],
+  daisyui: {},
+} satisfies Config;
+
+config.daisyui = {
+  base: false,
+  themes: [
+    {
+      custom: {
+        ...daisyuiThemes['dark'],
+        primary: config.theme.extend.colors.brand[400],
+      },
+    },
+  ],
 };
+
 export default config;

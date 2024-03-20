@@ -6,5 +6,6 @@
   "editor.formatOnSave": true,
   "editor.formatOnPaste": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "cSpell.enableFiletypes": ["md", "mdx"]
+  "cSpell.enableFiletypes": ["md", "mdx"],
+  "editor.tabSize": 2
 }

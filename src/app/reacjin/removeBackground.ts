@@ -55,6 +55,20 @@ export async function loadModel(
   return onnxSession;
 }
 
+function padImage(
+  image: CanvasImageSource,
+  sourceWidth: number,
+  sourceHeight: number,
+): OffscreenCanvas {
+  const dim = Math.max(sourceWidth, sourceHeight);
+  const canvas = new OffscreenCanvas(dim, dim);
+  const ctx = canvas.getContext('2d')!;
+  ctx.fillStyle = 'black';
+  ctx.fillRect(0, 0, dim, dim);
+  ctx.drawImage(image, (dim - sourceWidth) / 2, (dim - sourceHeight) / 2);
+  return canvas;
+}
+
 function resizeImage(
   image: CanvasImageSource,
   width: number,
@@ -66,19 +80,6 @@ function resizeImage(
   return canvas;
 }
 
-function softmax(resultArray: number[]): any {
-  // Get the largest value in the array.
-  const largestNumber = Math.max(...resultArray);
-  // Apply exponential function to each result item subtracted by the largest number, use reduce to get the previous result number and the current number to sum all the exponentials results.
-  const sumOfExp = resultArray
-    .map((resultItem) => Math.exp(resultItem - largestNumber))
-    .reduce((prevNumber, currentNumber) => prevNumber + currentNumber);
-  //Normalizes the resultArray by dividing by the sum of all exponentials; this normalization ensures that the sum of the components of the output vector is 1.
-  return resultArray.map((resultValue, index) => {
-    return Math.exp(resultValue - largestNumber) / sumOfExp;
-  });
-}
-
 export async function removeBackground(
   image: CanvasImageSource,
   imageWidth: number,
@@ -86,7 +87,12 @@ export async function removeBackground(
 ): Promise<CanvasImageSource> {
   const session = await loadModel();
 
-  const resizedCanvas = resizeImage(image, 320, 320);
+  const resizedCanvas = resizeImage(
+    padImage(image, imageWidth, imageHeight),
+    320,
+    320,
+  );
+
   const resizedData = resizedCanvas
     .getContext('2d')!
     .getImageData(0, 0, 320, 320).data;
@@ -115,7 +121,7 @@ export async function removeBackground(
   // probabilities
   const outputP = output.data as Float32Array;
 
-  // un-flatten the probabilties into an image
+  // use the probabilities to create a mask
   const threshold = 0.3;
   const band = 0.3;
   const lowerBound = threshold - band * 0.5;

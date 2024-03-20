@@ -58,7 +58,7 @@ export function Panel({
             {buttons}
           </div>
         </div>
-        <div className="flex flex-col w-max">{children}</div>
+        <div className="flex flex-col relative">{children}</div>
       </div>
     </MotionDiv>
   );

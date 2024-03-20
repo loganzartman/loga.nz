@@ -1,9 +1,10 @@
 'use client';
 
 import {drawStyledText} from 'canvas-styled-text';
-import {MdOutlineImage} from 'react-icons/md';
+import {useState} from 'react';
 
 import {Button} from '@/app/reacjin/Button';
+import {LoadingOverlay} from '@/app/reacjin/LoadingOverlay';
 import {PanelRow} from '@/app/reacjin/PanelRow';
 import {RemoveBgSection} from '@/app/reacjin/plugins/RemoveBgSection';
 import {LayerPlugin} from '@/app/reacjin/plugins/types';
@@ -77,6 +78,8 @@ export const imageLayerPlugin: LayerPlugin<
   },
 
   UIPanel({options, setOptions, ctx}) {
+    const [loading, setLoading] = useState(false);
+
     const uploadFile = async () => {
       const input = document.createElement('input');
       input.type = 'file';
@@ -91,10 +94,23 @@ export const imageLayerPlugin: LayerPlugin<
       input.click();
     };
 
-    const setFromURL = () => {
+    const setFromURL = async () => {
       const url = prompt('Enter image URL');
       if (url) {
-        setOptions({src: url});
+        setLoading(true);
+        const result = await fetch(url, {credentials: 'omit'});
+        if (!result.ok) {
+          setOptions({src: ''});
+          return;
+        }
+
+        // convert to data URL
+        const reader = new FileReader();
+        reader.onload = () => {
+          setOptions({src: reader.result as string});
+        };
+        reader.readAsDataURL(await result.blob());
+        setLoading(false);
       }
     };
 
@@ -105,19 +121,12 @@ export const imageLayerPlugin: LayerPlugin<
           alt="preview"
           className="pointer-events-none select-none w-[256px]"
         />
-        {options.src.startsWith('data:') || options.src.startsWith('blob:') ? (
-          <div className="flex items-center gap-2">
-            <MdOutlineImage />
-            <div>Image file</div>
-          </div>
-        ) : (
-          <div className="text-ellipsis w-[40ch]">{options.src}</div>
-        )}
-        <PanelRow label="Replace" className="items-start mt-4">
+        <PanelRow label="Replace" className="items-start mt-4 w-max">
           <Button onClick={uploadFile}>Upload</Button>
           <Button onClick={setFromURL}>From URL</Button>
         </PanelRow>
         <RemoveBgSection options={options} setOptions={setOptions} ctx={ctx} />
+        {loading && <LoadingOverlay />}
       </>
     );
   },

@@ -66,7 +66,14 @@ export const imageLayerPlugin: LayerPlugin<
   },
 
   draw: ({ctx, computed: {image}}) => {
-    ctx.drawImage(image, 0, 0);
+    // fit the image
+    const maxSize = Math.max(image.width, image.height);
+    const minSpace = Math.min(ctx.canvas.width, ctx.canvas.height);
+    const scale = minSpace / maxSize;
+    // center the image
+    const x = (ctx.canvas.width - image.width * scale) / 2;
+    const y = (ctx.canvas.height - image.height * scale) / 2;
+    ctx.drawImage(image, x, y, image.width * scale, image.height * scale);
   },
 
   UIPanel({options, setOptions, ctx}) {

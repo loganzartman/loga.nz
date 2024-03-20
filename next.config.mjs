@@ -1,4 +1,5 @@
 import createMDX from '@next/mdx';
+import path from 'path';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeSlug from 'rehype-slug';
@@ -36,6 +37,20 @@ const nextConfig = {
 
     // Modify the file loader rule to ignore *.svg, since we have it handled now.
     fileLoaderRule.exclude = /\.svg$/i;
+
+    // loads onnx models and wasm as static assets and exports as URLs
+    config.module.rules.push({
+      test: /\.onnx$/,
+      type: 'asset/resource',
+    });
+    config.module.rules.push({
+      test: /\.wasm$/,
+      type: 'asset/resource',
+    });
+
+    config.resolve.alias['onnxruntime-web-dist'] = path.resolve(
+      './node_modules/onnxruntime-web/dist',
+    );
 
     return config;
   },

@@ -6,6 +6,7 @@ import {MdOutlineImage} from 'react-icons/md';
 import {Button} from '@/app/reacjin/Button';
 import {PanelRow} from '@/app/reacjin/PanelRow';
 import {LayerPlugin} from '@/app/reacjin/plugins/types';
+import {removeBackground} from '@/app/reacjin/removeBackground';
 
 export type ImageLayerOptions = {
   src: string;
@@ -68,7 +69,7 @@ export const imageLayerPlugin: LayerPlugin<
     ctx.drawImage(image, 0, 0);
   },
 
-  UIPanel({options, setOptions}) {
+  UIPanel({options, setOptions, ctx}) {
     const uploadFile = async () => {
       const input = document.createElement('input');
       input.type = 'file';
@@ -90,6 +91,19 @@ export const imageLayerPlugin: LayerPlugin<
       }
     };
 
+    const handleRemoveBg = async () => {
+      const newImage = await removeBackground(
+        ctx.canvas,
+        ctx.canvas.width,
+        ctx.canvas.height,
+      );
+      ctx.save();
+      ctx.globalCompositeOperation = 'copy';
+      ctx.drawImage(newImage, 0, 0);
+      ctx.restore();
+      setOptions({...options, src: ctx.canvas.toDataURL()});
+    };
+
     return (
       <>
         <img
@@ -108,6 +122,9 @@ export const imageLayerPlugin: LayerPlugin<
         <PanelRow label="Replace" className="items-start mt-4">
           <Button onClick={uploadFile}>Upload</Button>
           <Button onClick={setFromURL}>From URL</Button>
+        </PanelRow>
+        <PanelRow label="Tools">
+          <Button onClick={handleRemoveBg}>Remove background</Button>
         </PanelRow>
       </>
     );

@@ -2,7 +2,7 @@ import * as ort from 'onnxruntime-web';
 import ortWasmPath from 'onnxruntime-web-dist/ort-wasm.wasm';
 import ortWasmSimdPath from 'onnxruntime-web-dist/ort-wasm-simd.wasm';
 
-import modelPath from '@/app/reacjin/models/u2net.onnx';
+import modelPath from '@/app/reacjin/models/u2net.quant.onnx';
 
 type FetchModelArgs = {
   onProgress?: (progress: number) => void;
@@ -46,10 +46,12 @@ export async function loadModel(
   console.log('Fetching model');
   const modelData = await fetchModelData(args);
   console.log('Loading model');
+  const basepath = document.location.href;
   ort.env.wasm.wasmPaths = {
-    'ort-wasm.wasm': ortWasmPath,
-    'ort-wasm-simd.wasm': ortWasmSimdPath,
+    'ort-wasm.wasm': new URL(ortWasmPath, basepath).toString(),
+    'ort-wasm-simd.wasm': new URL(ortWasmSimdPath, basepath).toString(),
   };
+  ort.env.wasm.proxy = true;
   onnxSession = await ort.InferenceSession.create(modelData);
   console.log('Model loaded');
   return onnxSession;

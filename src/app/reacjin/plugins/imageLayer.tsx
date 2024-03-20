@@ -5,8 +5,8 @@ import {MdOutlineImage} from 'react-icons/md';
 
 import {Button} from '@/app/reacjin/Button';
 import {PanelRow} from '@/app/reacjin/PanelRow';
+import {RemoveBgSection} from '@/app/reacjin/plugins/RemoveBgSection';
 import {LayerPlugin} from '@/app/reacjin/plugins/types';
-import {removeBackground} from '@/app/reacjin/removeBackground';
 
 export type ImageLayerOptions = {
   src: string;
@@ -98,19 +98,6 @@ export const imageLayerPlugin: LayerPlugin<
       }
     };
 
-    const handleRemoveBg = async () => {
-      const newImage = await removeBackground(
-        ctx.canvas,
-        ctx.canvas.width,
-        ctx.canvas.height,
-      );
-      ctx.save();
-      ctx.globalCompositeOperation = 'copy';
-      ctx.drawImage(newImage, 0, 0);
-      ctx.restore();
-      setOptions({...options, src: ctx.canvas.toDataURL()});
-    };
-
     return (
       <>
         <img
@@ -130,9 +117,7 @@ export const imageLayerPlugin: LayerPlugin<
           <Button onClick={uploadFile}>Upload</Button>
           <Button onClick={setFromURL}>From URL</Button>
         </PanelRow>
-        <PanelRow label="Tools">
-          <Button onClick={handleRemoveBg}>Remove background</Button>
-        </PanelRow>
+        <RemoveBgSection options={options} setOptions={setOptions} ctx={ctx} />
       </>
     );
   },

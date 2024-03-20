@@ -18,5 +18,6 @@ export interface LayerPlugin<Options, Computed = unknown> {
     ctx: CanvasRenderingContext2D;
     options: Options;
     setOptions: (options: Options) => void;
+    computed: Computed;
   }>;
 }

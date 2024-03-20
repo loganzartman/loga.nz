@@ -77,7 +77,7 @@ export const imageLayerPlugin: LayerPlugin<
     ctx.drawImage(image, x, y, image.width * scale, image.height * scale);
   },
 
-  UIPanel({options, setOptions, ctx}) {
+  UIPanel({options, setOptions, ctx, computed}) {
     const [loading, setLoading] = useState(false);
 
     const uploadFile = async () => {
@@ -95,7 +95,7 @@ export const imageLayerPlugin: LayerPlugin<
     };
 
     const setFromURL = async () => {
-      const url = prompt('Enter image URL');
+      const url = prompt('Enter image URL', 'https://picsum.photos/256');
       if (url) {
         setLoading(true);
         const result = await fetch(url, {credentials: 'omit'});
@@ -125,7 +125,12 @@ export const imageLayerPlugin: LayerPlugin<
           <Button onClick={uploadFile}>Upload</Button>
           <Button onClick={setFromURL}>From URL</Button>
         </PanelRow>
-        <RemoveBgSection options={options} setOptions={setOptions} ctx={ctx} />
+        <RemoveBgSection
+          options={options}
+          setOptions={setOptions}
+          ctx={ctx}
+          computed={computed}
+        />
         {loading && <LoadingOverlay />}
       </>
     );

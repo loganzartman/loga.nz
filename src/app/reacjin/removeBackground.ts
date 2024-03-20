@@ -65,7 +65,7 @@ function padImage(
   const dim = Math.max(sourceWidth, sourceHeight);
   const canvas = new OffscreenCanvas(dim, dim);
   const ctx = canvas.getContext('2d')!;
-  ctx.fillStyle = 'black';
+  ctx.fillStyle = 'white';
   ctx.fillRect(0, 0, dim, dim);
   ctx.drawImage(image, (dim - sourceWidth) / 2, (dim - sourceHeight) / 2);
   return canvas;

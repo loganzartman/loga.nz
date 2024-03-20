@@ -203,6 +203,10 @@ export default function ReacjinEditor() {
     return null;
   }
 
+  const computed = selectedLayer
+    ? computedCache.get(selectedLayer.pluginID, selectedLayer.options)?.computed
+    : null;
+
   return (
     <PanelProvider>
       <div
@@ -288,6 +292,7 @@ export default function ReacjinEditor() {
                         setOptions={(options) =>
                           handleSetOptions(selectedLayer!, options)
                         }
+                        computed={computed}
                       />
                     </div>
                   </Panel>

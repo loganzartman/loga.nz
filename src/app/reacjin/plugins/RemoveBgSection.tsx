@@ -2,7 +2,10 @@ import {useState} from 'react';
 import {FaWandMagicSparkles} from 'react-icons/fa6';
 
 import {Button} from '@/app/reacjin/Button';
-import type {ImageLayerOptions} from '@/app/reacjin/plugins/imageLayer';
+import type {
+  ImageLayerComputed,
+  ImageLayerOptions,
+} from '@/app/reacjin/plugins/imageLayer';
 import {loadModel, removeBackground} from '@/app/reacjin/removeBackground';
 import {Section} from '@/app/reacjin/Section';
 
@@ -10,10 +13,12 @@ export function RemoveBgSection({
   ctx,
   options,
   setOptions,
+  computed,
 }: {
   ctx: CanvasRenderingContext2D;
   options: ImageLayerOptions;
   setOptions: (options: ImageLayerOptions) => void;
+  computed: ImageLayerComputed;
 }) {
   const [statusText, setStatusText] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -32,15 +37,26 @@ export function RemoveBgSection({
     await new Promise((resolve) => setTimeout(resolve, 100));
 
     const newImage = await removeBackground(
-      ctx.canvas,
-      ctx.canvas.width,
-      ctx.canvas.height,
+      computed.image,
+      computed.image.width,
+      computed.image.height,
     );
-    ctx.save();
-    ctx.globalCompositeOperation = 'copy';
+
+    const canvas = new OffscreenCanvas(
+      computed.image.width,
+      computed.image.height,
+    );
+    const ctx = canvas.getContext('2d')!;
     ctx.drawImage(newImage, 0, 0);
-    ctx.restore();
-    setOptions({...options, src: ctx.canvas.toDataURL()});
+    const blob = await canvas.convertToBlob();
+    const reader = new FileReader();
+    const dataURL = await new Promise<string>((res, rej) => {
+      reader.onload = () => res(reader.result as string);
+      reader.onerror = rej;
+      reader.readAsDataURL(blob);
+    });
+
+    setOptions({...options, src: dataURL});
     setLoading(false);
   };
 

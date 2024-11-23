@@ -306,7 +306,7 @@ export default function ReacjinEditor() {
         </FAB>
         <AnimatePresence>
           {dropping && (
-            <MotionDiv
+            <motion.div
               initial={{opacity: 0}}
               animate={{opacity: 1}}
               exit={{opacity: 0}}
@@ -318,7 +318,7 @@ export default function ReacjinEditor() {
                   <MdAddPhotoAlternate size={64} />
                 </div>
               </div>
-            </MotionDiv>
+            </motion.div>
           )}
         </AnimatePresence>
         <ExportDialog

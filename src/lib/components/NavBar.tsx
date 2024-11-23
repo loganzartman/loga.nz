@@ -43,14 +43,14 @@ export default function NavBar() {
   }, [scrollY]);
 
   return (
-    <MotionDiv
+    <motion.div
       variants={containerVariants}
       initial="floating"
       animate={state}
       transition={{transform: {type: 'spring', bounce: 0.6}}}
       className="z-10 fixed top-0 left-0 right-0 flex flex-row justify-center"
     >
-      <MotionDiv
+      <motion.div
         variants={barVariants}
         style={{borderRadius: '20px'}}
         className="flex flex-row items-center h-[40px] gap-4 px-5 bg-background/50 backdrop-blur-sm backdrop-saturate-200 shadow-big-glow shadow-brand-100/70"
@@ -58,7 +58,7 @@ export default function NavBar() {
         <NavItem label="about" href="/" />
         <NavItem label="blog" href="/blog" />
         <NavItem label="things" href="/things" />
-      </MotionDiv>
-    </MotionDiv>
+      </motion.div>
+    </motion.div>
   );
 }

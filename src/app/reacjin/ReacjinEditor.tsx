@@ -1,6 +1,5 @@
 'use client';
 
-import {AnimatePresence} from 'framer-motion';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
   MdAddPhotoAlternate,
@@ -32,7 +31,7 @@ import {PanelProvider} from '@/app/reacjin/PanelContext';
 import {pluginByID} from '@/app/reacjin/plugins/registry';
 import {Toolbar} from '@/app/reacjin/Toolbar';
 import {useUndoable} from '@/app/reacjin/useUndoable';
-import {MotionDiv} from '@/lib/framer-motion';
+import {AnimatePresence} from '@/lib/motion-react';
 
 export default function ReacjinEditor() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -306,7 +305,7 @@ export default function ReacjinEditor() {
         </FAB>
         <AnimatePresence>
           {dropping && (
-            <motion.div
+            <MotionDiv
               initial={{opacity: 0}}
               animate={{opacity: 1}}
               exit={{opacity: 0}}
@@ -318,7 +317,7 @@ export default function ReacjinEditor() {
                   <MdAddPhotoAlternate size={64} />
                 </div>
               </div>
-            </motion.div>
+            </MotionDiv>
           )}
         </AnimatePresence>
         <ExportDialog

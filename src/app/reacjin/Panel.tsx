@@ -1,9 +1,9 @@
 'use client';
 
 import clsx from 'clsx';
-import {motion, useDragControls} from 'motion';
 
 import {usePanel} from '@/app/reacjin/PanelContext';
+import {useDragControls} from '@/lib/motion-react';
 
 export function Panel({
   children,
@@ -24,7 +24,7 @@ export function Panel({
   const controls = useDragControls();
 
   return (
-    <motion.div
+    <MotionDiv
       initial={{opacity: 0, scale: 0.7}}
       animate={{opacity: 1, scale: 1.0}}
       exit={{opacity: 0, scale: 0.9}}
@@ -59,6 +59,6 @@ export function Panel({
         </div>
         <div className="flex flex-col relative">{children}</div>
       </div>
-    </motion.div>
+    </MotionDiv>
   );
 }

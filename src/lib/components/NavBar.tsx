@@ -1,10 +1,9 @@
 'use client';
 
-import {useScroll, Variants} from 'framer-motion';
 import {useEffect, useMemo, useState} from 'react';
 
 import NavItem from '@/lib/components/NavItem';
-import {MotionDiv} from '@/lib/framer-motion';
+import {MotionDiv, useScroll, Variants} from '@/lib/motion-react';
 
 export default function NavBar() {
   const [state, setState] = useState<'stuck' | 'floating'>('floating');
@@ -43,14 +42,14 @@ export default function NavBar() {
   }, [scrollY]);
 
   return (
-    <motion.div
+    <MotionDiv
       variants={containerVariants}
       initial="floating"
       animate={state}
       transition={{transform: {type: 'spring', bounce: 0.6}}}
       className="z-10 fixed top-0 left-0 right-0 flex flex-row justify-center"
     >
-      <motion.div
+      <MotionDiv
         variants={barVariants}
         style={{borderRadius: '20px'}}
         className="flex flex-row items-center h-[40px] gap-4 px-5 bg-background/50 backdrop-blur-sm backdrop-saturate-200 shadow-big-glow shadow-brand-100/70"
@@ -58,7 +57,7 @@ export default function NavBar() {
         <NavItem label="about" href="/" />
         <NavItem label="blog" href="/blog" />
         <NavItem label="things" href="/things" />
-      </motion.div>
-    </motion.div>
+      </MotionDiv>
+    </MotionDiv>
   );
 }

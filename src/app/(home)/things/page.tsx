@@ -1,6 +1,5 @@
-import {Variants} from 'framer-motion';
-
 import {ThingCard} from '@/app/(home)/things/ThingCard';
+import {MotionDiv, Variants} from '@/lib/motion-react';
 
 const variants = {
   hide: {
@@ -11,7 +10,6 @@ const variants = {
     opacity: 1,
     translateX: '0',
     transition: {
-      staggerChildren: 0.2,
       duration: 1,
     },
   },
@@ -19,12 +17,12 @@ const variants = {
 
 export default function Things() {
   return (
-    <motion.div
+    <MotionDiv
       className="flex flex-col gap-2"
       variants={variants}
       initial="hide"
-      animate="hide"
       whileInView="show"
+      viewport={{once: false, amount: 0.5}}
     >
       <ThingCard variants={variants} />
       <ThingCard variants={variants} />
@@ -38,6 +36,6 @@ export default function Things() {
       <ThingCard variants={variants} />
       <ThingCard variants={variants} />
       <ThingCard variants={variants} />
-    </motion.div>
+    </MotionDiv>
   );
 }

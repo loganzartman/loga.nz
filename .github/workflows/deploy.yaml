@@ -34,6 +34,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
       - run: pnpm install
+      - run: pnpm lint
+      - run: pnpm types
       - run: pnpm build
         env:
           PRIVATE_KEY_GITHUB: ${{ secrets.PRIVATE_KEY_GITHUB }}

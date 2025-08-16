@@ -10,7 +10,7 @@ import {
   getPathBySlug,
   getPostBySlug,
   getSiblingPosts,
-  Post,
+  type Post,
 } from '@/app/(home)/blog/lib/posts';
 import Arrow from '@/image/arrow.svg';
 import Divider from '@/image/divider.svg';

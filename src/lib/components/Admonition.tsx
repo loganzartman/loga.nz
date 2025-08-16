@@ -5,9 +5,9 @@ import {PiWarningBold} from 'react-icons/pi';
 export type Type = 'note' | 'warning' | 'tip';
 
 const icons: Record<Type, React.ReactNode> = {
-  note: <IoMdInformationCircleOutline alt="Information" />,
-  warning: <PiWarningBold alt="Warning" />,
-  tip: <HiOutlineLightBulb alt="Lightbulb" />,
+  note: <IoMdInformationCircleOutline />,
+  warning: <PiWarningBold />,
+  tip: <HiOutlineLightBulb />,
 };
 
 const classNames: Record<Type, string> = {

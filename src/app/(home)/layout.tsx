@@ -1,6 +1,6 @@
 import 'highlight.js/styles/base16/material-palenight.css';
 
-import type {Metadata} from 'next';
+import type {Metadata, Viewport} from 'next';
 
 import NavBar from '@/lib/components/NavBar';
 
@@ -13,7 +13,11 @@ export const metadata: Metadata = {
   title: 'loganz',
   description: "Logan's homepage",
   authors: [{name: 'Logan Zartman'}],
-  viewport: 'width=device-width, initial-scale=1',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function Layout({children}: {children: React.ReactNode}) {

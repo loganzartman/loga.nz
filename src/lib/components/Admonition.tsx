@@ -12,9 +12,8 @@ const icons: Record<Type, React.ReactNode> = {
 
 const classNames: Record<Type, string> = {
   note: 'text-indigo-100 bg-indigo-600/20 ring-indigo-400/10 shadow-indigo-500/70',
-  warning:
-    'text-amber-100 bg-amber-600/20 ring-amber-300/30 shadow-amber-500/100',
-  tip: 'text-teal-100 bg-teal-600/20 ring-teal-300/30 shadow-teal-500/100',
+  warning: 'text-amber-100 bg-amber-600/20 ring-amber-300/30 shadow-amber-500',
+  tip: 'text-teal-100 bg-teal-600/20 ring-teal-300/30 shadow-teal-500',
 };
 
 export default function Admonition({

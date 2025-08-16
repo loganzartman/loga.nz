@@ -1,6 +1,5 @@
 import typography from '@tailwindcss/typography';
 import type {Config} from 'tailwindcss';
-import {PluginUtils} from 'tailwindcss/types/config';
 
 const config = {
   plugins: [typography],
@@ -39,7 +38,7 @@ const config = {
         serif: ['var(--font-serif)', 'ui-serif'],
         mono: ['var(--font-mono)', 'ui-monospace'],
       },
-      typography: ({theme}: PluginUtils) => ({
+      typography: ({theme}) => ({
         brand: {
           css: {
             '--tw-prose-body': theme('colors.brand[700]'),

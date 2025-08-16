@@ -10,7 +10,7 @@ function PostListing({post}: {post: Post}) {
       {post.data.tags.map((tag: string) => (
         <div
           key={tag}
-          className="bg-brand-100/20 hover:bg-highlight/20 hover:text-highlight px-2 py-0.5 rounded-sm"
+          className="bg-brand-100/20 hover:bg-highlight/20 hover:text-highlight px-2 py-0.5 rounded-xs"
         >
           {tag}
         </div>

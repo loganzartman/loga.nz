@@ -16,13 +16,14 @@ import Arrow from '@/image/arrow.svg';
 import Divider from '@/image/divider.svg';
 import Date from '@/lib/components/Date';
 
-type Props = {params: {slug: string}};
+type Props = {params: Promise<{slug: string}>};
 
 export async function generateStaticParams() {
   return getAllPosts().map(({data: {slug}}) => ({slug}));
 }
 
-export function generateMetadata({params}: Props): Metadata {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const post = getPostBySlug(params.slug);
   return {
     title: `${post.data.title} - loganz' blog`,
@@ -72,7 +73,8 @@ async function Footer({post}: {post: Post}) {
   );
 }
 
-export default async function Post({params}: Props) {
+export default async function Post(props: Props) {
+  const params = await props.params;
   const {slug} = params;
   const post = getPostBySlug(slug);
   const Post = dynamic<MDXProps>(

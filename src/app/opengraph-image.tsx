@@ -1,5 +1,7 @@
 import {generateOgImage} from '@/lib/generate-og-image';
 
+export const dynamic = 'error';
+
 export default async function Image() {
   return generateOgImage({title: 'loga.nz'});
 }

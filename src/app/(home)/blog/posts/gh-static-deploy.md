@@ -8,6 +8,8 @@ toc: true
 
 # Deploy a static site with GitHub Actions
 
+> **loganz note**: this is about my old site. now i just deploy to github pages and life is easy.
+
 In this post, I'll show you how I automatically build and deploy this blog using [GitHub Actions][gh actions], GitHub's free continuous integration platform. I use [Hugo][hugo] to generate a static site and copy it to my web server [using rsync][hugo rsync] over SSH. I run [nginx][nginx] on my server. There are already great tutorials on [how to set up Hugo][hugo setup] and [how to set up nginx][nginx setup]. Really, this process applies to any static site deployment to any web server that you have SSH access to.
 
 I think that this process is simple enough that it is worth setting up yourself. However, you can find existing GitHub Actions that help accomplish rsync deployments over SSH.

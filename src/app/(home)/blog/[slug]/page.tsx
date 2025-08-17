@@ -10,19 +10,20 @@ import {
   getPathBySlug,
   getPostBySlug,
   getSiblingPosts,
-  Post,
+  type Post,
 } from '@/app/(home)/blog/lib/posts';
 import Arrow from '@/image/arrow.svg';
 import Divider from '@/image/divider.svg';
 import Date from '@/lib/components/Date';
 
-type Props = {params: {slug: string}};
+type Props = {params: Promise<{slug: string}>};
 
 export async function generateStaticParams() {
   return getAllPosts().map(({data: {slug}}) => ({slug}));
 }
 
-export function generateMetadata({params}: Props): Metadata {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
   const post = getPostBySlug(params.slug);
   return {
     title: `${post.data.title} - loganz' blog`,
@@ -72,7 +73,8 @@ async function Footer({post}: {post: Post}) {
   );
 }
 
-export default async function Post({params}: Props) {
+export default async function Post(props: Props) {
+  const params = await props.params;
   const {slug} = params;
   const post = getPostBySlug(slug);
   const Post = dynamic<MDXProps>(
@@ -83,7 +85,7 @@ export default async function Post({params}: Props) {
     <div className="flex flex-col items-center -mt-2">
       <div className="max-w-full">
         <Date date={post.data.date} className="text-brand-300" />
-        <article className="prose max-w-[72ch] prose-brand !prose-invert prose-headings:font-serif prose-a:no-underline prose-a:prose-headings:text-brand-200 prose-pre:-mx-10 prose-pre:p-4 md:prose-pre:rounded-xl md:prose-pre:mx-0 md:prose-pre:shadow-glow md:prose-pre:shadow-black/50">
+        <article className="prose max-w-[72ch] prose-brand prose-invert! prose-headings:font-serif prose-a:no-underline prose-headings:prose-a:text-brand-200 prose-pre:-mx-10 prose-pre:p-4 md:prose-pre:rounded-xl md:prose-pre:mx-0 md:prose-pre:shadow-glow md:prose-pre:shadow-black/50">
           <Post components={mdComponents} />
         </article>
         <div className="flex mt-12 mb-10 justify-center">

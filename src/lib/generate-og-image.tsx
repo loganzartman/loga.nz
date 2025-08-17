@@ -1,5 +1,5 @@
 import fs from 'fs';
-import {ImageResponse} from 'next/server';
+import {ImageResponse} from 'next/og';
 import {join} from 'path';
 
 const cwd = join(process.cwd(), 'src', 'lib');
@@ -77,7 +77,6 @@ export async function generateOgImage({
             style={{
               fontFamily: 'font-serif',
               fontSize: titleFontSize,
-              // @ts-expect-error
               textWrap: 'balance',
               lineHeight: '1.0',
               wordBreak: 'break-word',

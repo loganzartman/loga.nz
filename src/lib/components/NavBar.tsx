@@ -48,12 +48,14 @@ export default function NavBar() {
       initial="floating"
       animate={state}
       transition={{transform: {type: 'spring', bounce: 0.6}}}
+      // @ts-expect-error
       className="z-10 fixed top-0 left-0 right-0 flex flex-row justify-center"
     >
       <MotionDiv
         variants={barVariants}
         style={{borderRadius: '20px'}}
-        className="flex flex-row items-center h-[40px] gap-4 px-5 bg-background/50 backdrop-blur-sm backdrop-saturate-200 shadow-big-glow shadow-brand-100/70"
+        // @ts-expect-error
+        className="flex flex-row items-center h-[40px] gap-4 px-5 bg-background/50 backdrop-blur-xs backdrop-saturate-200 shadow-big-glow shadow-brand-100/70"
       >
         <NavItem label="about" href="/" />
         <NavItem label="blog" href="/blog" />

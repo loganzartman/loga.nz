@@ -2,6 +2,7 @@ import 'highlight.js/styles/base16/material-palenight.css';
 
 import type {Metadata, Viewport} from 'next';
 
+import Footer from '@/lib/components/Footer';
 import NavBar from '@/lib/components/NavBar';
 
 export const metadata: Metadata = {
@@ -25,6 +26,7 @@ export default function Layout({children}: {children: React.ReactNode}) {
     <>
       <NavBar />
       {children}
+      <Footer />
     </>
   );
 }
